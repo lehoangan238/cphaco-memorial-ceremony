@@ -24,46 +24,27 @@
             --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--body-bg);
-            color: #1e293b;
-            overflow-x: hidden;
-        }
-
-        /* ẨN LOGO TINYMCE */
-        .tox-notifications-container { display: none !important; }
-        .tox-statusbar__branding { display: none !important; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--body-bg); color: #1e293b; overflow-x: hidden; }
+        .tox-notifications-container, .tox-statusbar__branding { display: none !important; }
 
         /* SIDEBAR */
         .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid #e2e8f0;
-            position: fixed; top: 0; left: 0;
-            padding: 24px 16px; z-index: 100;
-            display: flex; flex-direction: column;
+            width: var(--sidebar-width); height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid #e2e8f0; 
+            position: fixed; top: 0; left: 0; padding: 24px 16px; z-index: 1000; 
+            display: flex; flex-direction: column; transition: transform 0.3s ease-in-out;
         }
-        .brand-logo {
-            text-decoration: none; display: flex; flex-direction: column; align-items: center;
-            margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9;
-        }
+        .brand-logo { text-decoration: none; display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
         .brand-logo img { height: 80px; object-fit: contain; margin-bottom: 10px; }
-        .brand-text {
-            font-family: 'Roboto', sans-serif; font-weight: 700; color: var(--cph-blue);
-            font-size: 1.1rem; text-transform: uppercase;
-        }
+        .brand-text { font-family: 'Roboto', sans-serif; font-weight: 700; color: var(--cph-blue); font-size: 1.1rem; text-transform: uppercase; }
         .nav-link {
             color: #334155; padding: 14px 20px; border-radius: 8px; margin-bottom: 8px;
-            font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
-            cursor: pointer;
+            font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer;
         }
         .nav-link:hover { background-color: #f1f5f9; color: var(--cph-blue); }
         .nav-link.active { background-color: #e0f2fe; color: var(--cph-blue); font-weight: 600; }
 
         /* MAIN CONTENT */
-        .main-wrapper { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; }
+        .main-wrapper { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; transition: margin-left 0.3s ease-in-out; }
         .page-header { margin-bottom: 30px; }
         .page-title { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
         
@@ -77,29 +58,42 @@
         .form-label { font-weight: 600; color: #334155; margin-bottom: 8px; font-size: 0.9rem; }
         .form-control { padding: 12px 15px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .form-control:focus { border-color: var(--cph-blue); box-shadow: 0 0 0 3px rgba(0, 153, 216, 0.15); }
-        
-        /* Style cho ô Readonly */
-        .form-control[readonly] { 
-            background-color: #e2e8f0; 
-            color: #64748b; 
-            cursor: not-allowed;
-            border-color: #cbd5e1;
-        }
+        .form-control[readonly] { background-color: #e2e8f0; color: #64748b; cursor: not-allowed; border-color: #cbd5e1; pointer-events: none; }
 
-        .custom-table th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 15px 20px; }
-        .custom-table td { padding: 15px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
-
-        /* DYNAMIC ROW */
-        .dynamic-row {
-            background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px;
-            border-radius: 8px; margin-bottom: 10px; position: relative; display: flex; align-items: center; gap: 10px;
-        }
+        .dynamic-row { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; position: relative; display: flex; align-items: center; gap: 10px; }
         .btn-remove-row { color: #ef4444; background: none; border: none; padding: 5px; }
         .btn-remove-row:hover { color: #dc2626; background-color: #fee2e2; border-radius: 4px; }
+        .custom-table th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 15px 20px; white-space: nowrap; }
+        .custom-table td { padding: 15px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
 
         /* LOADING & TOAST */
         #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; }
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1060; }
+
+        /* MOBILE HEADER & TOGGLE */
+        .mobile-header { display: none; padding: 15px 20px; background: white; border-bottom: 1px solid #e2e8f0; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 900; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 990; }
+
+        /* --- RESPONSIVE CSS CHO MOBILE --- */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); } /* Ẩn sidebar */
+            .sidebar.active { transform: translateX(0); } /* Hiện sidebar khi active */
+            
+            .main-wrapper { margin-left: 0; padding: 20px; margin-top: 60px; /* Chừa chỗ cho header */ }
+            
+            .mobile-header { display: flex; } /* Hiện header mobile */
+            .sidebar-overlay.active { display: block; }
+
+            .page-title { font-size: 1.5rem; }
+            .card-body { padding: 20px; }
+            
+            /* Table scroll trên mobile */
+            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            
+            /* Form responsive */
+            .dynamic-row { flex-direction: column; align-items: stretch; }
+            .tox-tinymce { height: 300px !important; }
+        }
     </style>
 </head>
 <body>
@@ -107,15 +101,36 @@
     <div id="loading"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- MOBILE HEADER -->
+    <div class="mobile-header">
+        <div class="d-flex align-items-center gap-2">
+            <img src="CPH LOGO 1.png" alt="Logo" style="height: 32px;">
+            <span class="fw-bold text-primary">CPHACO ADMIN</span>
+        </div>
+        <button class="btn btn-light border" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <!-- OVERLAY CHO MOBILE -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- SIDEBAR -->
-    <nav class="sidebar">
-        <a href="#" class="brand-logo">
+    <nav class="sidebar" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center d-lg-none mb-3">
+            <span class="text-muted fw-bold">MENU</span>
+            <button class="btn btn-sm btn-light" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <a href="#" class="brand-logo d-none d-lg-flex">
             <img src="CPH LOGO 1.png" alt="CPHACO Logo">
             <span class="brand-text">Admin Portal</span>
         </a>
         <div class="nav flex-column">
             <a id="nav-profiles" class="nav-link active" onclick="switchTab('profiles')"><i class="fas fa-list-alt"></i><span>Danh sách Hồ Sơ</span></a>
             <a id="nav-create" class="nav-link" onclick="switchTab('create', true)"><i class="fas fa-user-plus"></i><span>Thêm Mới / Sửa</span></a>
+        </div>
+        
+        <div class="mt-auto d-lg-none text-center p-3 text-muted small border-top">
+            &copy; 2025 CPHACO
         </div>
     </nav>
 
@@ -124,14 +139,14 @@
         
         <!-- Tab 1: Danh sách -->
         <div id="tab-profiles">
-            <div class="d-flex justify-content-between align-items-center page-header">
-                <div><h1 class="page-title">Quản lý Trang Tưởng Niệm</h1><p class="text-muted">Hệ thống Sổ tang điện tử & Màn hình thông minh.</p></div>
-                <button class="btn btn-primary shadow-sm" onclick="switchTab('create', true)"><i class="fas fa-plus me-2"></i> Tạo hồ sơ mới</button>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center page-header gap-3">
+                <div><h1 class="page-title">Quản lý Trang Tưởng Niệm</h1><p class="text-muted mb-0">Hệ thống Sổ tang điện tử.</p></div>
+                <button class="btn btn-primary shadow-sm w-100 w-md-auto" onclick="switchTab('create', true)"><i class="fas fa-plus me-2"></i> Tạo mới</button>
             </div>
             <div class="card">
                 <div class="table-responsive">
                     <table class="table custom-table mb-0">
-                        <thead><tr><th>STT</th><th>Mã Hồ Sơ</th><th>Người mất</th><th>Ngày tạo</th><th class="text-end">Thao tác</th></tr></thead>
+                        <thead><tr><th>#</th><th>Mã Hồ Sơ</th><th>Người mất</th><th>Ngày tạo</th><th class="text-end">Thao tác</th></tr></thead>
                         <tbody id="profiles-table-body"></tbody>
                     </table>
                 </div>
@@ -141,11 +156,11 @@
         <!-- Tab 2: Form -->
         <div id="tab-create" style="display:none;">
             <div class="d-flex justify-content-between align-items-center page-header">
-                <div><h1 class="page-title" id="form-title">Tạo Hồ Sơ Mới</h1><p class="text-muted">Nhập thông tin chi tiết để hiển thị.</p></div>
+                <div><h1 class="page-title" id="form-title">Tạo Hồ Sơ Mới</h1><p class="text-muted d-none d-md-block">Nhập thông tin chi tiết để hiển thị.</p></div>
                 <button class="btn btn-outline-secondary bg-white" onclick="switchTab('profiles')"><i class="fas fa-arrow-left me-2"></i> Quay lại</button>
             </div>
             <div class="row justify-content-center">
-                <div class="col-lg-11">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
                             <form id="profileForm">
@@ -153,13 +168,11 @@
                                 <div class="row g-4 mb-4">
                                     <div class="col-md-4">
                                         <label class="form-label">Mã Hồ Sơ <span class="text-danger">*</span></label>
-                                        <!-- Ô ID sẽ tự động điền (Auto-Slug) -->
-                                        <input type="text" class="form-control" id="job_id" placeholder="Tự động tạo từ tên..." required readonly>
-                                        <div class="form-text text-muted">Mã này dùng cho link QR. Chỉ được tạo một lần.</div>
+                                        <input type="text" class="form-control" id="job_id" placeholder="Tự động tạo..." required readonly>
+                                        <div class="form-text text-muted small">Mã dùng cho link QR (Không sửa được).</div>
                                     </div>
                                     <div class="col-md-5">
                                         <label class="form-label">Họ và Tên <span class="text-danger">*</span></label>
-                                        <!-- Sự kiện oninput để tạo slug -->
                                         <input type="text" class="form-control fw-bold" id="full_name" placeholder="VD: Hoàng Nam Tiến" required oninput="generateIdFromName(this.value)">
                                     </div>
                                     <div class="col-md-3">
@@ -174,24 +187,24 @@
                                 <h5 class="mb-4 text-primary fw-bold">Nội dung chi tiết</h5>
                                 <div class="mb-4"><label class="form-label">Tiểu sử (Web)</label><textarea id="biography_editor"></textarea></div>
                                 <div class="row g-4 mb-4">
-                                    <div class="col-md-6">
+                                    <div class="col-lg-6">
                                         <label class="form-label d-flex justify-content-between align-items-center">
                                             Danh sách Chức vụ (TV)
                                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRoleRow()"><i class="fas fa-plus"></i> Thêm</button>
                                         </label>
-                                        <div id="roles-wrapper" class="border rounded p-3 bg-white" style="min-height: 250px; max-height: 500px; overflow-y: auto;"></div>
+                                        <div id="roles-wrapper" class="border rounded p-3 bg-white" style="min-height: 200px; max-height: 400px; overflow-y: auto;"></div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-lg-6">
                                         <label class="form-label d-flex justify-content-between align-items-center">
                                             Địa điểm tổ chức (TV)
                                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addLocationRow()"><i class="fas fa-plus"></i> Thêm</button>
                                         </label>
-                                        <div id="locations-wrapper" class="border rounded p-3 bg-white" style="min-height: 250px; max-height: 500px; overflow-y: auto;"></div>
+                                        <div id="locations-wrapper" class="border rounded p-3 bg-white" style="min-height: 200px; max-height: 400px; overflow-y: auto;"></div>
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-end gap-3 pt-4 border-top">
-                                    <button type="button" class="btn btn-light px-4" onclick="switchTab('profiles')">Hủy bỏ</button>
-                                    <button type="submit" class="btn btn-primary px-5 shadow">Lưu Hồ Sơ</button>
+                                <div class="d-flex justify-content-end gap-2 pt-4 border-top">
+                                    <button type="button" class="btn btn-light px-4" onclick="switchTab('profiles')">Hủy</button>
+                                    <button type="submit" class="btn btn-primary px-5 shadow w-100 w-md-auto">Lưu Hồ Sơ</button>
                                 </div>
                             </form>
                         </div>
@@ -201,28 +214,33 @@
         </div>
     </div>
 
-    <!-- MODALs (Giữ nguyên) -->
-    <div class="modal fade" id="tributesModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light"><h5 class="modal-title fw-bold text-dark">Quản lý Sổ Tang</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="table-responsive" style="max-height: 400px; overflow-y: auto;"><table class="table custom-table"><thead><tr><th>Người gửi</th><th>Nội dung</th><th>Ngày</th><th></th></tr></thead><tbody id="tributes-table-body"></tbody></table></div></div></div></div></div>
+    <!-- MODALs -->
+    <div class="modal fade" id="tributesModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-md-down"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light"><h5 class="modal-title fw-bold text-dark">Quản lý Sổ Tang</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="height: 100%; max-height: 70vh; overflow-y: auto;"><table class="table custom-table table-striped mb-0"><thead><tr><th>Người gửi</th><th>Nội dung</th><th>Ngày</th><th></th></tr></thead><tbody id="tributes-table-body"></tbody></table></div></div></div></div></div>
     <div class="modal fade" id="confirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0 pb-0"><h5 class="modal-title text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center py-4"><p class="mb-0 text-muted" id="confirm-message">...</p></div><div class="modal-footer border-0 justify-content-center pb-4"><button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger px-4" id="btn-confirm-action">Xóa ngay</button></div></div></div></div>
 
     <script>
-        const API_BASE_URL = "http://localhost:8080"; 
+        const API_BASE_URL = "https://cphaco-backend-api.onrender.com"; 
         let isEditMode = false; 
+
+        // Hàm Toggle Menu Mobile
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // Close sidebar khi click overlay
+        document.querySelector('.sidebar-overlay').addEventListener('click', toggleSidebar);
 
         try { tinymce.init({ selector: '#biography_editor', height: 350, skin: 'oxide', plugins: 'lists link code', toolbar: 'undo redo | bold italic | bullist numlist', menubar: false }); } catch(e){}
 
         // --- HÀM TỰ ĐỘNG SINH MÃ (AUTO-SLUG) ---
         function generateIdFromName(name) {
             const idInput = document.getElementById('job_id');
-            // Nếu đang sửa (Edit Mode), KHÔNG được đổi ID
             if (isEditMode) return; 
-
-            // Chuyển tiếng Việt có dấu thành không dấu, viết thường, liền nhau
             let slug = name.toLowerCase();
             slug = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
             slug = slug.replace(/[đĐ]/g, 'd'); 
             slug = slug.replace(/[^a-z0-9]/g, ''); 
-            
             idInput.value = slug;
         }
 
@@ -288,6 +306,12 @@
             document.getElementById('tab-create').style.display = 'none';
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
+            // Đóng sidebar nếu đang ở mobile
+            if (window.innerWidth < 992) {
+                document.querySelector('.sidebar').classList.remove('active');
+                document.querySelector('.sidebar-overlay').classList.remove('active');
+            }
+
             if (tabName === 'profiles') {
                 document.getElementById('tab-profiles').style.display = 'block';
                 document.getElementById('nav-profiles').classList.add('active');
@@ -308,7 +332,7 @@
                 tbody.innerHTML = '';
                 if (json.items && json.items.length > 0) {
                     json.items.forEach((p, index) => {
-                        tbody.innerHTML += `<tr><td class="text-muted fw-bold">${index + 1}</td><td><span class="badge bg-light text-dark border">${p.job_id}</span><div class="mt-1"><a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-link"></i> Web</a> | <a href="screen.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-tv"></i> TV</a></div></td><td class="fw-bold text-primary">${p.full_name}</td><td class="text-muted small">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td><td class="text-end"><button class="btn btn-light btn-sm text-primary" onclick="editProfile('${p.job_id}')"><i class="fas fa-pen"></i></button><button class="btn btn-light btn-sm text-warning mx-1" onclick="manageTributes('${p.job_id}')"><i class="fas fa-comment-dots"></i></button><button class="btn btn-light btn-sm text-danger" onclick="deleteProfile('${p.job_id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                        tbody.innerHTML += `<tr><td class="text-muted fw-bold">${index + 1}</td><td><span class="badge bg-light text-dark border text-truncate" style="max-width: 100px;">${p.job_id}</span><div class="mt-1 d-flex gap-2"><a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-link"></i> Web</a><a href="screen.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-tv"></i> TV</a></div></td><td class="fw-bold text-primary">${p.full_name}</td><td class="text-muted small d-none d-md-table-cell">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td><td class="text-end"><div class="d-flex justify-content-end gap-1"><button class="btn btn-light btn-sm text-primary" onclick="editProfile('${p.job_id}')"><i class="fas fa-pen"></i></button><button class="btn btn-light btn-sm text-warning" onclick="manageTributes('${p.job_id}')"><i class="fas fa-comment-dots"></i></button><button class="btn btn-light btn-sm text-danger" onclick="deleteProfile('${p.job_id}')"><i class="fas fa-trash"></i></button></div></td></tr>`;
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5">Chưa có dữ liệu</td></tr>'; }
             } catch (e) { showToast('Lỗi tải danh sách: ' + e.message, 'error'); }
@@ -321,15 +345,11 @@
                 const res = await fetch(`${API_BASE_URL}/api/memorial/page/${jobId}`);
                 const json = await res.json();
                 const d = json.data;
-                
-                // Đánh dấu là đang sửa để chặn hàm generateIdFromName
                 isEditMode = true;
-                
                 switchTab('create', false);
                 
                 document.getElementById('job_id').value = d.job_id;
-                document.getElementById('job_id').readOnly = true; // Khóa cứng
-                
+                document.getElementById('job_id').readOnly = true; 
                 document.getElementById('full_name').value = d.full_name;
                 document.getElementById('date_range').value = d.date_range || '';
                 document.getElementById('avatar_url').value = d.avatar_url || '';
@@ -350,12 +370,10 @@
         }
 
         function resetForm() {
-            // Đánh dấu là tạo mới
             isEditMode = false;
-
             document.getElementById('profileForm').reset();
             document.getElementById('job_id').value = "";
-            document.getElementById('job_id').readOnly = true; // Vẫn khóa vì ta dùng Auto-Slug
+            document.getElementById('job_id').readOnly = true; // Vẫn khóa vì dùng Auto-Slug
             document.getElementById('form-title').textContent = "Tạo Hồ Sơ Mới";
             if(tinymce.get('biography_editor')) tinymce.get('biography_editor').setContent('');
             document.getElementById('locations-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-loc-msg">Chưa có địa điểm nào.</div>';
@@ -386,7 +404,6 @@
             showLoading(false);
         });
 
-        // --- MANAGE TRIBUTES & DELETE ---
         async function manageTributes(jobId) {
             const modal = new bootstrap.Modal(document.getElementById('tributesModal'));
             modal.show();
@@ -399,7 +416,7 @@
                 tbody.innerHTML = '';
                 if(!tributes.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Trống</td></tr>'; return; }
                 tributes.forEach(t => {
-                    tbody.innerHTML += `<tr><td class="fw-bold">${t.sender_name}</td><td>${t.message}</td><td class="small">${new Date(t.created_at).toLocaleDateString()}</td><td><button class="btn btn-outline-danger btn-sm" onclick="deleteTribute(${t.id}, '${jobId}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                    tbody.innerHTML += `<tr><td class="fw-bold text-wrap" style="max-width: 100px;">${t.sender_name}</td><td class="text-wrap" style="max-width: 200px;">${t.message}</td><td class="small text-nowrap">${new Date(t.created_at).toLocaleDateString()}</td><td><button class="btn btn-outline-danger btn-sm" onclick="deleteTribute(${t.id}, '${jobId}')"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
             } catch(e) {}
         }
