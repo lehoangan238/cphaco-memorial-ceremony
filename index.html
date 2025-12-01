@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPHACO Admin | Quản trị Sổ Tang</title>
+    <link rel="icon" type="image/png" href="CPH LOGO 1.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tiny.cloud/1/f3c6icc3n2mp5e2mg4cnf8ck0is7qgtrnyr13ut4rpys3645/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+    <style>
+        :root {
+            --cph-blue: #0099D8;
+            --cph-blue-dark: #007bb0;
+            --sidebar-width: 260px;
+            --sidebar-bg: #ffffff;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg);
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        .tox-notifications-container,
+        .tox-statusbar__branding {
+            display: none !important;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px 16px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-logo {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .brand-logo img {
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .brand-text {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            color: var(--cph-blue);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            color: #334155;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background-color: #f1f5f9;
+            color: var(--cph-blue);
+        }
+
+        .nav-link.active {
+            background-color: #e0f2fe;
+            color: var(--cph-blue);
+            font-weight: 600;
+        }
+
+        /* MAIN */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .btn-primary {
+            background-color: var(--cph-blue);
+            border-color: var(--cph-blue);
+            padding: 10px 24px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--cph-blue-dark);
+            border-color: var(--cph-blue-dark);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .form-control:focus {
+            border-color: var(--cph-blue);
+            box-shadow: 0 0 0 3px rgba(0, 153, 216, 0.15);
+        }
+
+        /* Style cho ô Readonly: Xám và không cho click */
+        .form-control[readonly] {
+            background-color: #e2e8f0;
+            /* Màu xám đậm hơn chút để rõ là bị khóa */
+            color: #64748b;
+            cursor: not-allowed;
+            border-color: #cbd5e1;
+            pointer-events: none;
+            /* Chặn click chuột luôn */
+        }
+
+        .dynamic-row {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-remove-row {
+            color: #ef4444;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .btn-remove-row:hover {
+            color: #dc2626;
+            background-color: #fee2e2;
+            border-radius: 4px;
+        }
+
+        .custom-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding: 15px 20px;
+        }
+
+        .custom-table td {
+            padding: 15px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1060;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <nav class="sidebar">
+        <a href="#" class="brand-logo">
+            <img src="CPH LOGO 1.png" alt="CPHACO Logo">
+            <span class="brand-text">Admin Portal</span>
+        </a>
+        <div class="nav flex-column">
+            <a id="nav-profiles" class="nav-link active" onclick="switchTab('profiles')"><i
+                    class="fas fa-list-alt"></i><span>Danh sách Hồ Sơ</span></a>
+            <a id="nav-create" class="nav-link" onclick="switchTab('create', true)"><i
+                    class="fas fa-user-plus"></i><span>Thêm Mới / Sửa</span></a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div id="tab-profiles">
+            <div class="d-flex justify-content-between align-items-center page-header">
+                <div>
+                    <h1 class="page-title">Quản lý Trang Tưởng Niệm</h1>
+                    <p class="text-muted">Hệ thống Sổ tang điện tử & Màn hình thông minh.</p>
+                </div>
+                <button class="btn btn-primary shadow-sm" onclick="switchTab('create', true)"><i
+                        class="fas fa-plus me-2"></i> Tạo hồ sơ mới</button>
+            </div>
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table custom-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Hồ Sơ</th>
+                                <th>Người mất</th>
+                                <th>Ngày tạo</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profiles-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-create" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center page-header">
+                <div>
+                    <h1 class="page-title" id="form-title">Tạo Hồ Sơ Mới</h1>
+                    <p class="text-muted">Nhập thông tin chi tiết để hiển thị.</p>
+                </div>
+                <button class="btn btn-outline-secondary bg-white" onclick="switchTab('profiles')"><i
+                        class="fas fa-arrow-left me-2"></i> Quay lại</button>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-11">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="profileForm">
+                                <h5 class="mb-4 text-primary fw-bold">Thông tin cơ bản</h5>
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Họ và Tên <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control fw-bold" id="full_name"
+                                            placeholder="VD: Hoàng Nam Tiến" required
+                                            oninput="generateIdFromName(this.value)">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mã Hồ Sơ (Tự động) <span class="text-muted"
+                                                style="font-size:0.8rem; font-weight:400;">(Không thể
+                                                sửa)</span></label>
+                                        <div class="input-group">
+                                            <!-- READONLY MÃI MÃI -->
+                                            <input type="text" class="form-control" id="job_id"
+                                                placeholder="Tự sinh từ họ tên..." readonly required>
+                                            <span class="input-group-text bg-light text-muted"><i
+                                                    class="fas fa-lock"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Niên khóa (Năm sinh - Năm mất)</label>
+                                    <input type="text" class="form-control" id="date_range" placeholder="1969 - 2025">
+                                </div>
+                                <div class="row g-4 mb-5">
+                                    <div class="col-md-6"><label class="form-label">Avatar URL</label><input type="text"
+                                            class="form-control" id="avatar_url"></div>
+                                    <div class="col-md-6"><label class="form-label">Cover URL</label><input type="text"
+                                            class="form-control" id="cover_url"></div>
+                                </div>
+                                <h5 class="mb-4 text-primary fw-bold">Nội dung chi tiết</h5>
+                                <div class="mb-4"><label class="form-label">Tiểu sử (Web)</label><textarea
+                                        id="biography_editor"></textarea></div>
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label d-flex justify-content-between align-items-center">
+                                            Danh sách Chức vụ (TV)
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                onclick="addRoleRow()"><i class="fas fa-plus"></i> Thêm</button>
+                                        </label>
+                                        <div id="roles-wrapper" class="border rounded p-3 bg-white"
+                                            style="min-height: 250px; max-height: 500px; overflow-y: auto;"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label d-flex justify-content-between align-items-center">
+                                            Địa điểm tổ chức (TV)
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                onclick="addLocationRow()"><i class="fas fa-plus"></i> Thêm</button>
+                                        </label>
+                                        <div id="locations-wrapper" class="border rounded p-3 bg-white"
+                                            style="min-height: 250px; max-height: 500px; overflow-y: auto;"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end gap-3 pt-4 border-top">
+                                    <button type="button" class="btn btn-light px-4" onclick="switchTab('profiles')">Hủy
+                                        bỏ</button>
+                                    <button type="submit" class="btn btn-primary px-5 shadow">Lưu Hồ Sơ</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALs (Giữ nguyên) -->
+    <div class="modal fade" id="tributesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-dark">Quản lý Sổ Tang</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Người gửi</th>
+                                    <th>Nội dung</th>
+                                    <th>Ngày</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tributes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Xác nhận
+                        xóa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-0 text-muted" id="confirm-message">...</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4"><button type="button"
+                        class="btn btn-light px-4" data-bs-dismiss="modal">Hủy</button><button type="button"
+                        class="btn btn-danger px-4" id="btn-confirm-action">Xóa ngay</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://cphaco-backend-api.onrender.com";
+        // Biến này để kiểm tra xem đang ở chế độ nào: True = Đang Sửa, False = Đang Tạo Mới
+        let isEditMode = false;
+
+        try { tinymce.init({ selector: '#biography_editor', height: 350, skin: 'oxide', plugins: 'lists link code', toolbar: 'undo redo | bold italic | bullist numlist', menubar: false }); } catch (e) { }
+
+        // --- HÀM TỰ ĐỘNG SINH MÃ (AUTO-SLUG) ---
+        function generateIdFromName(name) {
+            const idInput = document.getElementById('job_id');
+
+            // CHỈ SINH MÃ KHI ĐANG TẠO MỚI (isEditMode = false)
+            if (isEditMode) return;
+
+            let slug = name.toLowerCase();
+            slug = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            slug = slug.replace(/[đĐ]/g, 'd');
+            slug = slug.replace(/[^a-z0-9]/g, '');
+
+            idInput.value = slug;
+        }
+
+        // --- TOAST & CONFIRM ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const id = 'toast-' + Date.now();
+            const colorClass = type === 'success' ? 'bg-success' : 'bg-danger';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            container.insertAdjacentHTML('beforeend', `<div id="${id}" class="toast align-items-center text-white ${colorClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true"><div class="d-flex"><div class="toast-body"><i class="fas ${icon} me-2"></i> ${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`);
+            const toastEl = document.getElementById(id); const toast = new bootstrap.Toast(toastEl, { delay: 3000 }); toast.show();
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+
+        let confirmCallback = null;
+        function showConfirm(message, callback) {
+            document.getElementById('confirm-message').textContent = message;
+            confirmCallback = callback;
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+        document.getElementById('btn-confirm-action').addEventListener('click', () => {
+            if (confirmCallback) confirmCallback();
+            const el = document.getElementById('confirmModal');
+            const modal = bootstrap.Modal.getInstance(el);
+            if (modal) modal.hide();
+        });
+
+        // --- UI HELPERS ---
+        function addLocationRow(data = null) {
+            const wrapper = document.getElementById('locations-wrapper');
+            if (wrapper.querySelector('.empty-loc-msg')) wrapper.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'dynamic-row flex-column align-items-stretch';
+            div.innerHTML = `<div class="d-flex justify-content-between align-items-start mb-2"><strong class="text-primary small"># Địa điểm</strong><button type="button" class="btn-remove-row" onclick="this.closest('.dynamic-row').remove()"><i class="fas fa-trash-alt"></i></button></div><div class="row g-2"><div class="col-md-6"><input type="text" class="form-control form-control-sm loc-name" placeholder="Tên" value="${data ? data.name : ''}"></div><div class="col-md-6"><input type="text" class="form-control form-control-sm loc-time" placeholder="Giờ" value="${data ? data.time : ''}"></div><div class="col-12"><input type="text" class="form-control form-control-sm loc-addr" placeholder="Địa chỉ" value="${data ? data.address : ''}"></div></div>`;
+            wrapper.appendChild(div);
+        }
+        function getLocationsFromUI() {
+            const locs = [];
+            document.querySelectorAll('#locations-wrapper .dynamic-row').forEach(row => {
+                const name = row.querySelector('.loc-name').value.trim();
+                if (name) locs.push({ name, time: row.querySelector('.loc-time').value.trim(), address: row.querySelector('.loc-addr').value.trim() });
+            });
+            return locs;
+        }
+        function addRoleRow(roleText = "") {
+            const wrapper = document.getElementById('roles-wrapper');
+            if (wrapper.querySelector('.empty-role-msg')) wrapper.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.innerHTML = `<input type="text" class="form-control form-control-sm role-input w-100" placeholder="Chức vụ..." value="${roleText}"><button type="button" class="btn-remove-row" onclick="this.closest('.dynamic-row').remove()"><i class="fas fa-times"></i></button>`;
+            wrapper.appendChild(div);
+        }
+        function getRolesFromUI() {
+            const roles = [];
+            document.querySelectorAll('#roles-wrapper .role-input').forEach(input => { if (input.value.trim()) roles.push(input.value.trim()); });
+            return roles;
+        }
+
+        // --- APP LOGIC ---
+        function switchTab(tabName, forceReset = false) {
+            document.getElementById('tab-profiles').style.display = 'none';
+            document.getElementById('tab-create').style.display = 'none';
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'profiles') {
+                document.getElementById('tab-profiles').style.display = 'block';
+                document.getElementById('nav-profiles').classList.add('active');
+                loadProfilesList();
+            } else if (tabName === 'create') {
+                document.getElementById('tab-create').style.display = 'block';
+                document.getElementById('nav-create').classList.add('active');
+                if (forceReset || !document.getElementById('job_id').value) resetForm();
+            }
+        }
+
+        async function loadProfilesList() {
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/profiles`);
+                const json = await res.json();
+                const tbody = document.getElementById('profiles-table-body');
+                tbody.innerHTML = '';
+                if (json.items && json.items.length > 0) {
+                    json.items.forEach((p, index) => {
+                        tbody.innerHTML += `<tr><td class="text-muted fw-bold">${index + 1}</td><td><span class="badge bg-light text-dark border">${p.job_id}</span><div class="mt-1"><a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-link"></i> Web</a> | <a href="screen.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-tv"></i> TV</a></div></td><td class="fw-bold text-primary">${p.full_name}</td><td class="text-muted small">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td><td class="text-end"><button class="btn btn-light btn-sm text-primary" onclick="editProfile('${p.job_id}')"><i class="fas fa-pen"></i></button><button class="btn btn-light btn-sm text-warning mx-1" onclick="manageTributes('${p.job_id}')"><i class="fas fa-comment-dots"></i></button><button class="btn btn-light btn-sm text-danger" onclick="deleteProfile('${p.job_id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5">Chưa có dữ liệu</td></tr>'; }
+            } catch (e) { showToast('Lỗi tải danh sách: ' + e.message, 'error'); }
+            showLoading(false);
+        }
+
+        async function editProfile(jobId) {
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/page/${jobId}`);
+                const json = await res.json();
+                const d = json.data;
+
+                // ĐÁNH DẤU LÀ ĐANG SỬA
+                isEditMode = true;
+
+                switchTab('create', false);
+
+                document.getElementById('job_id').value = d.job_id;
+                // Ô ID luôn readonly trong HTML, nên ko cần set lại JS
+
+                document.getElementById('full_name').value = d.full_name;
+                document.getElementById('date_range').value = d.date_range || '';
+                document.getElementById('avatar_url').value = d.avatar_url || '';
+                document.getElementById('cover_url').value = d.cover_url || '';
+                if (typeof tinymce !== 'undefined' && tinymce.get('biography_editor')) tinymce.get('biography_editor').setContent(d.biography || '');
+
+                const roleWrapper = document.getElementById('roles-wrapper'); roleWrapper.innerHTML = '';
+                if (d.career_roles?.length) d.career_roles.forEach(r => addRoleRow(r));
+                else roleWrapper.innerHTML = '<div class="text-center text-muted mt-5 empty-role-msg">Chưa có chức vụ nào.</div>';
+
+                const locWrapper = document.getElementById('locations-wrapper'); locWrapper.innerHTML = '';
+                if (d.locations?.length) d.locations.forEach(loc => addLocationRow(loc));
+                else locWrapper.innerHTML = '<div class="text-center text-muted mt-5 empty-loc-msg">Chưa có địa điểm nào.</div>';
+
+                document.getElementById('form-title').textContent = "Chỉnh sửa Hồ Sơ";
+            } catch (e) { showToast('Lỗi tải hồ sơ', 'error'); showLoading(false); }
+            showLoading(false);
+        }
+
+        function resetForm() {
+            // ĐÁNH DẤU LÀ TẠO MỚI
+            isEditMode = false;
+
+            document.getElementById('profileForm').reset();
+            document.getElementById('job_id').value = "";
+            document.getElementById('form-title').textContent = "Tạo Hồ Sơ Mới";
+            if (tinymce.get('biography_editor')) tinymce.get('biography_editor').setContent('');
+            document.getElementById('locations-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-loc-msg">Chưa có địa điểm nào.</div>';
+            document.getElementById('roles-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-role-msg">Chưa có chức vụ nào.</div>';
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading(true);
+            const payload = {
+                job_id: document.getElementById('job_id').value,
+                full_name: document.getElementById('full_name').value,
+                date_range: document.getElementById('date_range').value,
+                avatar_url: document.getElementById('avatar_url').value,
+                cover_url: document.getElementById('cover_url').value,
+                biography: (typeof tinymce !== 'undefined' && tinymce.get('biography_editor')) ? tinymce.get('biography_editor').getContent() : '',
+                career_roles: getRolesFromUI(),
+                locations: getLocationsFromUI()
+            };
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/setup`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.ok) { showToast('Lưu thành công!', 'success'); switchTab('profiles'); }
+                else showToast('Lỗi: ' + json.error, 'error');
+            } catch (e) { showToast('Lỗi kết nối', 'error'); }
+            showLoading(false);
+        });
+
+        // --- MANAGE TRIBUTES & DELETE ---
+        async function manageTributes(jobId) {
+            const modal = new bootstrap.Modal(document.getElementById('tributesModal'));
+            modal.show();
+            const tbody = document.getElementById('tributes-table-body');
+            tbody.innerHTML = '<tr><td colspan="4">Đang tải...</td></tr>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/page/${jobId}`);
+                const json = await res.json();
+                const tributes = json.data.tributes;
+                tbody.innerHTML = '';
+                if (!tributes.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Trống</td></tr>'; return; }
+                tributes.forEach(t => {
+                    tbody.innerHTML += `<tr><td class="fw-bold">${t.sender_name}</td><td>${t.message}</td><td class="small">${new Date(t.created_at).toLocaleDateString()}</td><td><button class="btn btn-outline-danger btn-sm" onclick="deleteTribute(${t.id}, '${jobId}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                });
+            } catch (e) { }
+        }
+
+        function deleteTribute(id, jobId) {
+            showConfirm("Xóa tin nhắn này?", async () => {
+                try {
+                    await fetch(`${API_BASE_URL}/api/admin/tribute/${id}`, { method: 'DELETE' });
+                    showToast('Đã xóa tin nhắn', 'success');
+                    const modalEl = document.getElementById('tributesModal');
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    setTimeout(() => manageTributes(jobId), 300);
+                } catch (e) { showToast('Lỗi xóa', 'error'); }
+            });
+        }
+
+        function deleteProfile(jobId) {
+            showConfirm(`Xóa vĩnh viễn hồ sơ [${jobId}]?`, async () => {
+                try {
+                    await fetch(`${API_BASE_URL}/api/admin/profile/${jobId}`, { method: 'DELETE' });
+                    showToast('Đã xóa hồ sơ', 'success');
+                    loadProfilesList();
+                } catch (e) { showToast('Lỗi xóa hồ sơ', 'error'); }
+            });
+        }
+
+        function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+        loadProfilesList();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

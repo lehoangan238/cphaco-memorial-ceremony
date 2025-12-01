@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Tang Điện Tử</title>
+    <link rel="icon" type="image/png" href="CPH LOGO 1.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #26c6da;
+            --text-dark: #333333;
+            --text-gray: #666666;
+            --bg-body: #f4f6f8;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            padding-bottom: 40px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-background {
+            height: 350px; /* Mobile nhỏ hơn chút */
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background-color: #333;
+        }
+        
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            padding-top: 80px;
+            text-align: center;
+            color: #fff;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .hero-title {
+            font-family: 'Merriweather', serif;
+            font-size: 28px; /* Font mobile vừa phải */
+            font-weight: 700;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            margin-bottom: 5px;
+        }
+        .hero-years {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* --- MAIN CARD --- */
+        .main-card {
+            max-width: 900px;
+            margin: -60px 15px 0 15px; /* Margin âm để đè lên Hero */
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+            padding-bottom: 40px;
+            min-height: 500px;
+        }
+
+        /* --- PROFILE HEADER --- */
+        .profile-header {
+            display: flex;
+            flex-direction: column; /* Mobile xếp dọc */
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .avatar-container {
+            margin-top: -80px; /* Đẩy avatar lên */
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 160px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 4px solid var(--white);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: #eee;
+            filter: grayscale(100%);
+        }
+
+        .profile-info {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .info-name {
+            font-family: 'Merriweather', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-dates {
+            font-size: 14px; color: #777; font-style: italic; margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 13px;
+            cursor: pointer; border: none; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-primary { background-color: var(--primary-color); color: #fff; }
+        .btn-outline { background-color: #fff; color: #555; border: 1px solid #ddd; }
+
+        /* --- TABS --- */
+        .tabs-container {
+            display: flex; justify-content: center; border-bottom: 1px solid #eee; margin-top: 10px;
+        }
+        .tab-item {
+            padding: 12px 15px; font-weight: 600; color: #888; cursor: pointer; font-size: 14px;
+            position: relative; margin-bottom: -1px;
+        }
+        .tab-item.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
+
+        /* --- CONTENT BODY --- */
+        .content-body { padding: 30px 20px; }
+
+        .section-title {
+            font-family: 'Merriweather', serif; font-size: 18px; font-weight: 700; color: #333;
+            margin-bottom: 15px; border-left: 4px solid var(--primary-color); padding-left: 10px;
+        }
+
+        /* Biography HTML Content */
+        .bio-content { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 30px; }
+        .bio-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 10px 0; }
+        .bio-content p { margin-bottom: 10px; }
+
+        /* Career List */
+        .role-list { list-style: none; padding: 0; }
+        .role-list li {
+            margin-bottom: 10px; font-size: 14px; color: #555; position: relative; padding-left: 20px; text-align: left;
+        }
+        .role-list li::before {
+            content: "•"; color: var(--primary-color); font-weight: bold; font-size: 20px;
+            position: absolute; left: 0; top: -4px;
+        }
+
+        /* --- FORM --- */
+        .tribute-form-container {
+            background: #fcfcfc; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 30px;
+        }
+        .form-header { font-weight: 600; color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;
+            margin-bottom: 12px; font-size: 14px; font-family: inherit;
+        }
+        .btn-submit {
+            background-color: var(--primary-color); color: #fff; border: none;
+            padding: 8px 25px; border-radius: 20px; font-weight: 600; width: 100%; cursor: pointer;
+        }
+
+        /* --- TRIBUTES LIST --- */
+        #tributes-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .tribute-card {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;
+        }
+        .card-body { padding: 15px; }
+        .card-header { display: flex; align-items: center; margin-bottom: 8px; }
+        .t-avatar {
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--primary-color);
+            color: var(--primary-color); display: flex; align-items: center; justify-content: center;
+            font-weight: 600; margin-right: 10px; font-size: 12px; background: #fff;
+        }
+        .t-name { font-weight: 700; font-size: 13px; color: #333; }
+        .t-content { font-size: 14px; color: #444; margin-bottom: 10px; }
+        .t-date { font-size: 11px; color: #999; }
+        
+        .card-footer {
+            background: #f9fbfd; padding: 8px 15px; font-size: 12px; color: #777; border-top: 1px solid #eee;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Responsive Desktop: Nếu mở trên PC thì khung rộng hơn */
+        @media (min-width: 768px) {
+            .main-card { margin: -80px auto 50px; }
+            .profile-header { flex-direction: row; text-align: left; padding: 0 40px; }
+            .avatar-container { margin-top: -100px; margin-right: 30px; }
+            .profile-avatar { width: 220px; height: 280px; }
+            .profile-info { margin-top: 30px; }
+            .action-buttons { justify-content: flex-start; }
+            #tributes-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-background">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-title" id="hero-name">...</div>
+            <div class="hero-years" id="hero-years">...</div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        
+        <div class="profile-header">
+            <div class="avatar-container">
+                <img id="avatar-img" src="" alt="Avatar" class="profile-avatar" style="display:none">
+            </div>
+            
+            <div class="profile-info">
+                <h1 class="info-name" id="profile-name">Đang tải...</h1>
+                <div class="info-dates" id="profile-dates"></div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="document.getElementById('inputName').focus()">
+                        <i class="fas fa-pen"></i> Viết lời chia buồn
+                    </button>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-share"></i> Chia sẻ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tab-item active">Memorial</div>
+            <div class="tab-item">Mementos</div>
+        </div>
+
+        <div class="content-body">
+            
+            <div class="section-title">Tiểu sử & Cuộc đời</div>
+            <div id="bio-content" class="bio-content">
+                <p style="text-align:center; color:#999;">Đang tải dữ liệu...</p>
+            </div>
+
+            <div style="font-weight:700; margin-bottom:10px; color:#333; font-size:15px;">
+                Quá trình công tác:
+            </div>
+            <ul id="career-list" class="role-list"></ul>
+
+            <hr style="border:0; border-top:1px solid #eee; margin: 30px 0;">
+
+            <div class="tribute-form-container">
+                <div class="form-header"><i class="fas fa-comment-alt"></i> Gửi lời nhắn</div>
+                <form id="tributeForm">
+                    <input type="text" id="inputName" class="form-input" placeholder="Tên của bạn..." required>
+                    <textarea id="inputMsg" class="form-textarea" rows="3" placeholder="Lời chia buồn..." required></textarea>
+                    <button type="submit" class="btn-submit">Gửi tin</button>
+                </form>
+            </div>
+
+            <div style="font-weight:700; margin-bottom:15px; color:#555;">
+                Những lời chia buồn (<span id="count">0</span>)
+            </div>
+            <div id="tributes-list">
+                </div>
+
+        </div>
+    </div>
+
+    <script>
+        // CONFIG
+        const API_BASE_URL = "https://cphaco-backend-api.onrender.com"; 
+        
+        // 1. Lấy job_id từ URL khi quét QR
+        // Link QR sẽ dạng: website.com/profile.html?job=hoangnamtien
+        const params = new URLSearchParams(window.location.search);
+        const JOB_ID = params.get("job");
+
+        // --- HÀM LOAD DỮ LIỆU ---
+        async function loadData() {
+            if (!JOB_ID) {
+                document.querySelector('.content-body').innerHTML = "<p style='text-align:center;color:red'>Lỗi: Thiếu mã Job ID trên đường dẫn.</p>";
+                return;
+            }
+
+            try {
+                // Gọi API lấy dữ liệu Profile + Comments
+                const res = await fetch(`${API_BASE_URL}/api/memorial/page/${JOB_ID}`);
+                const json = await res.json();
+
+                if (!json.ok) {
+                    document.getElementById('profile-name').textContent = "Không tìm thấy hồ sơ";
+                    return;
+                }
+
+                const data = json.data;
+
+                // A. Điền thông tin Profile
+                if (data.cover_url) document.querySelector('.hero-background').style.backgroundImage = `url('${data.cover_url}')`;
+                
+                const avatar = document.getElementById('avatar-img');
+                if (data.avatar_url) {
+                    avatar.src = data.avatar_url;
+                    avatar.style.display = 'block';
+                }
+
+                document.getElementById('hero-name').textContent = data.full_name;
+                document.getElementById('profile-name').textContent = data.full_name;
+                
+                document.getElementById('hero-years').textContent = data.date_range;
+                document.getElementById('profile-dates').textContent = data.date_range;
+
+                // B. Điền Tiểu sử (HTML)
+                const bioEl = document.getElementById('bio-content');
+                if (data.biography) {
+                    bioEl.innerHTML = data.biography;
+                } else {
+                    bioEl.innerHTML = "<em>Chưa cập nhật tiểu sử.</em>";
+                }
+
+                // C. Điền Chức vụ
+                const careerEl = document.getElementById('career-list');
+                if (data.career_roles && data.career_roles.length > 0) {
+                    careerEl.innerHTML = data.career_roles.map(r => `<li>${r}</li>`).join('');
+                } else {
+                    careerEl.innerHTML = "<li>Chưa có thông tin.</li>";
+                }
+
+                // D. Điền Comment
+                renderTributes(data.tributes);
+
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi kết nối Server");
+            }
+        }
+
+        function renderTributes(list) {
+            const container = document.getElementById('tributes-list');
+            document.getElementById('count').textContent = list.length;
+
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#999; font-style:italic;">Chưa có lời nhắn nào. Hãy là người đầu tiên.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(t => {
+                const dateStr = new Date(t.created_at).toLocaleDateString('vi-VN');
+                const initial = t.sender_name.substring(0, 2).toUpperCase();
+
+                return `
+                <div class="tribute-card">
+                    <div class="card-body">
+                        <div class="card-header">
+                            <div class="t-avatar">${initial}</div>
+                            <div class="t-name">${t.sender_name}</div>
+                        </div>
+                        <div class="t-content">${t.message}</div>
+                        <div class="t-date">${dateStr}</div>
+                    </div>
+                    <div class="card-footer">
+                        <i class="fas fa-user-circle"></i> Reply as Guest
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // --- HÀM GỬI TIN ---
+        document.getElementById('tributeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!JOB_ID) return alert("Lỗi: Không xác định được hồ sơ.");
+
+            const btn = e.target.querySelector('button');
+            const name = document.getElementById('inputName').value;
+            const msg = document.getElementById('inputMsg').value;
+
+            btn.disabled = true;
+            btn.textContent = "Đang gửi...";
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/comment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: JOB_ID,
+                        sender_name: name,
+                        message: msg
+                    })
+                });
+                
+                const json = await res.json();
+                if (json.ok) {
+                    alert("Cảm ơn bạn đã gửi lời chia buồn.");
+                    document.getElementById('inputName').value = "";
+                    document.getElementById('inputMsg').value = "";
+                    loadData(); // Tải lại để hiện comment mới
+                } else {
+                    alert("Lỗi: " + json.error);
+                }
+            } catch (err) {
+                alert("Lỗi kết nối");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Gửi tin";
+            }
+        });
+
+        // CHẠY KHI MỞ TRANG
+        loadData();
+    </script>
+</body>
+</html>
