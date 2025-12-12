@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPHACO Admin | Quản trị Sổ Tang</title>
-    <!-- Font Inter & Roboto -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="CPH LOGO 1.png">
     
-    <!-- TinyMCE với API Key của bạn -->
     <script src="https://cdn.tiny.cloud/1/f3c6icc3n2mp5e2mg4cnf8ck0is7qgtrnyr13ut4rpys3645/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
@@ -27,7 +28,7 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--body-bg); color: #1e293b; overflow-x: hidden; }
         .tox-notifications-container, .tox-statusbar__branding { display: none !important; }
 
-        /* SIDEBAR */
+        /* SIDEBAR & MAIN LAYOUT */
         .sidebar {
             width: var(--sidebar-width); height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid #e2e8f0; 
             position: fixed; top: 0; left: 0; padding: 24px 16px; z-index: 1000; 
@@ -36,21 +37,15 @@
         .brand-logo { text-decoration: none; display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
         .brand-logo img { height: 80px; object-fit: contain; margin-bottom: 10px; }
         .brand-text { font-family: 'Roboto', sans-serif; font-weight: 700; color: var(--cph-blue); font-size: 1.1rem; text-transform: uppercase; }
-        .nav-link {
-            color: #334155; padding: 14px 20px; border-radius: 8px; margin-bottom: 8px;
-            font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer;
-        }
+        .nav-link { color: #334155; padding: 14px 20px; border-radius: 8px; margin-bottom: 8px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
         .nav-link:hover { background-color: #f1f5f9; color: var(--cph-blue); }
         .nav-link.active { background-color: #e0f2fe; color: var(--cph-blue); font-weight: 600; }
 
-        /* MAIN CONTENT */
         .main-wrapper { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; transition: margin-left 0.3s ease-in-out; }
         .page-header { margin-bottom: 30px; }
         .page-title { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
-        
         .card { background: white; border: none; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom: 24px; overflow: hidden; }
         .card-body { padding: 30px; }
-
         .btn-primary { background-color: var(--cph-blue); border-color: var(--cph-blue); padding: 10px 24px; }
         .btn-primary:hover { background-color: var(--cph-blue-dark); border-color: var(--cph-blue-dark); }
 
@@ -59,49 +54,350 @@
         .form-control { padding: 12px 15px; border-radius: 8px; border: 1px solid #cbd5e1; }
         .form-control:focus { border-color: var(--cph-blue); box-shadow: 0 0 0 3px rgba(0, 153, 216, 0.15); }
         .form-control[readonly] { background-color: #e2e8f0; color: #64748b; cursor: not-allowed; border-color: #cbd5e1; pointer-events: none; }
-
-        .dynamic-row { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; position: relative; display: flex; align-items: center; gap: 10px; }
+        .dynamic-row { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .btn-remove-row { color: #ef4444; background: none; border: none; padding: 5px; }
-        .btn-remove-row:hover { color: #dc2626; background-color: #fee2e2; border-radius: 4px; }
         .custom-table th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 15px 20px; white-space: nowrap; }
         .custom-table td { padding: 15px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
 
-        /* LOADING & TOAST */
+        /* LOADING & TOAST & MOBILE */
         #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; }
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1060; }
-
-        /* MOBILE HEADER & TOGGLE */
         .mobile-header { display: none; padding: 15px 20px; background: white; border-bottom: 1px solid #e2e8f0; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 900; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 990; }
 
-        /* --- RESPONSIVE CSS CHO MOBILE --- */
-        @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); } /* Ẩn sidebar */
-            .sidebar.active { transform: translateX(0); } /* Hiện sidebar khi active */
-            
-            .main-wrapper { margin-left: 0; padding: 20px; margin-top: 60px; /* Chừa chỗ cho header */ }
-            
-            .mobile-header { display: flex; } /* Hiện header mobile */
-            .sidebar-overlay.active { display: block; }
+        /* ==========================================================================
+           EXPORT CONTAINER 1 - GIAO DIỆN PROFILE (HERO STYLE)
+           ========================================================================== */
+        /*
+        #export-container {
+            position: fixed;
+            top: 0; left: -9999px;
+            width: 1080px;
+            height: 1920px;
+            background-color: #f4f6f8;
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            z-index: -100;
+            overflow: hidden;
+        }
 
-            .page-title { font-size: 1.5rem; }
-            .card-body { padding: 20px; }
-            
-            /* Table scroll trên mobile */
+        #export-container .ex-hero {
+            width: 100%;
+            height: 550px;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 100px;
+        }
+        #export-container .ex-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+        }
+        #export-container .ex-hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+        #export-container .ex-hero-title {
+            font-family: 'Merriweather', serif;
+            font-size: 48px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        #export-container .ex-hero-years {
+            font-size: 32px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        #export-container .ex-card {
+            width: 940px;
+            background: #e6e6e6;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-top: -120px; 
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            margin-bottom: 60px;
+        }
+
+        #export-container .ex-avatar-box {
+            margin-top: -140px; 
+            position: relative;
+            z-index: 11;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        #export-container .ex-avatar {
+            width: 280px;
+            height: 360px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+            filter: grayscale(100%);
+        }
+
+        #export-container .ex-info {
+            text-align: center;
+            margin-top: 30px;
+            width: 100%;
+            padding: 0 60px;
+        }
+        #export-container .ex-name {
+            font-family: 'Merriweather', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        #export-container .ex-dates {
+            font-size: 24px;
+            color: #777;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+
+        #export-container .ex-divider {
+            width: 100%;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        #export-container .ex-divider::after {
+            content: 'Memorial';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            border-bottom: 4px solid #26c6da;
+            color: #26c6da;
+            font-weight: 700;
+            font-size: 24px;
+            background: white;
+        }
+
+        #export-container .ex-content {
+            width: 100%;
+            padding: 0 80px;
+            text-align: left;
+        }
+        #export-container .ex-section-head {
+            font-family: 'Merriweather', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+            border-left: 6px solid #26c6da;
+            padding-left: 20px;
+        }
+        #export-container .ex-bio {
+            font-size: 24px;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 50px;
+            text-align: justify;
+        }
+        #export-container .ex-roles-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #export-container .ex-roles {
+            list-style: none;
+            padding: 0;
+        }
+        #export-container .ex-roles li {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+        }
+        #export-container .ex-roles li::before {
+            content: "•";
+            color: #26c6da;
+            font-weight: bold;
+            font-size: 32px;
+            position: absolute;
+            left: 0;
+            top: -6px;
+        }
+
+        #export-container .ex-footer {
+            margin-top: auto;
+            width: 100%;
+            padding: 40px;
+            background: transparent;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+        #export-container .ex-qr-img {
+            padding: 10px;
+            background: white;
+            border: 2px solid #26c6da;
+            border-radius: 8px;
+        }
+        #export-container .ex-footer-text h3 {
+            font-size: 30px;
+            color: #26c6da;
+            margin: 0 0 10px;
+            font-weight: 700;
+        }
+        #export-container .ex-footer-text p {
+            font-size: 20px;
+            color: #666;
+            margin: 0;
+        }
+        */
+
+        /* ==========================================================================
+           EXPORT CONTAINER 2 - GIAO DIỆN CŨ (STANDEE CEREMONY STYLE)
+           ========================================================================== */
+        #export-container-old {
+            position: fixed;
+            top: 0; left: -9999px;
+            width: 1080px;
+            height: 1920px;
+            background: linear-gradient(180deg, #101828 0%, #05080F 100%); /* Dark Blue/Black */
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 80px;
+            box-sizing: border-box;
+            z-index: -100;
+            overflow: hidden;
+        }
+
+        /* Logo & Title */
+        .standee-top-text {
+            font-size: 48px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+        .standee-title {
+            font-size: 72px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 80px;
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Portrait */
+        .st-portrait-frame {
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin-bottom: 50px;
+        }
+        .st-portrait {
+            width: 500px;
+            height: 680px;
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        /* Info */
+        .st-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .st-name {
+            font-size: 64px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+        .st-years {
+            font-size: 36px;
+            color: #94a3b8; /* Grey */
+            font-weight: 400;
+        }
+
+        /* QR Section (Centered) */
+        .st-qr-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .st-qr-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+        }
+        .st-qr-box {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .st-qr-text h3 {
+            font-size: 32px;
+            color: #fbbf24; /* Gold/Yellow */
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .st-qr-text p {
+            font-size: 20px;
+            color: #e2e8f0;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; padding: 20px; margin-top: 60px; }
+            .mobile-header { display: flex; }
+            .sidebar-overlay.active { display: block; }
             .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            
-            /* Form responsive */
             .dynamic-row { flex-direction: column; align-items: stretch; }
-            .tox-tinymce { height: 300px !important; }
         }
     </style>
 </head>
+
 <body>
 
     <div id="loading"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div></div>
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- MOBILE HEADER -->
     <div class="mobile-header">
         <div class="d-flex align-items-center gap-2">
             <img src="CPH LOGO 1.png" alt="Logo" style="height: 32px;">
@@ -109,17 +405,13 @@
         </div>
         <button class="btn btn-light border" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
     </div>
-
-    <!-- OVERLAY CHO MOBILE -->
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <nav class="sidebar" id="sidebar">
         <div class="d-flex justify-content-between align-items-center d-lg-none mb-3">
             <span class="text-muted fw-bold">MENU</span>
             <button class="btn btn-sm btn-light" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
-
         <a href="#" class="brand-logo d-none d-lg-flex">
             <img src="CPH LOGO 1.png" alt="CPHACO Logo">
             <span class="brand-text">Admin Portal</span>
@@ -128,16 +420,12 @@
             <a id="nav-profiles" class="nav-link active" onclick="switchTab('profiles')"><i class="fas fa-list-alt"></i><span>Danh sách Hồ Sơ</span></a>
             <a id="nav-create" class="nav-link" onclick="switchTab('create', true)"><i class="fas fa-user-plus"></i><span>Thêm Mới / Sửa</span></a>
         </div>
-        
         <div class="mt-auto d-lg-none text-center p-3 text-muted small border-top">
             &copy; 2025 CPHACO
         </div>
     </nav>
 
-    <!-- MAIN -->
     <div class="main-wrapper">
-        
-        <!-- Tab 1: Danh sách -->
         <div id="tab-profiles">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center page-header gap-3">
                 <div><h1 class="page-title">Quản lý Trang Tưởng Niệm</h1><p class="text-muted mb-0">Hệ thống Sổ tang điện tử.</p></div>
@@ -153,7 +441,6 @@
             </div>
         </div>
 
-        <!-- Tab 2: Form -->
         <div id="tab-create" style="display:none;">
             <div class="d-flex justify-content-between align-items-center page-header">
                 <div><h1 class="page-title" id="form-title">Tạo Hồ Sơ Mới</h1><p class="text-muted d-none d-md-block">Nhập thông tin chi tiết để hiển thị.</p></div>
@@ -214,26 +501,85 @@
         </div>
     </div>
 
-    <!-- MODALs -->
     <div class="modal fade" id="tributesModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-md-down"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light"><h5 class="modal-title fw-bold text-dark">Quản lý Sổ Tang</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="height: 100%; max-height: 70vh; overflow-y: auto;"><table class="table custom-table table-striped mb-0"><thead><tr><th>Người gửi</th><th>Nội dung</th><th>Ngày</th><th></th></tr></thead><tbody id="tributes-table-body"></tbody></table></div></div></div></div></div>
     <div class="modal fade" id="confirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0 pb-0"><h5 class="modal-title text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center py-4"><p class="mb-0 text-muted" id="confirm-message">...</p></div><div class="modal-footer border-0 justify-content-center pb-4"><button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger px-4" id="btn-confirm-action">Xóa ngay</button></div></div></div></div>
+
+    <!--
+    <div id="export-container">
+        <div class="ex-hero" id="export-hero">
+            <div class="ex-hero-content">
+                <div class="ex-hero-title" id="export-hero-title">HOÀNG NAM TIẾN</div>
+                <div class="ex-hero-years" id="export-hero-years">1969 - 2025</div>
+            </div>
+        </div>
+
+        <div class="ex-card">
+            <div class="ex-avatar-box">
+                <img id="export-avatar" class="ex-avatar" src="" alt="Avatar">
+            </div>
+            
+            <div class="ex-info">
+                <div class="ex-name" id="export-name">HOÀNG NAM TIẾN</div>
+                <div class="ex-dates" id="export-years">1969 - 2025</div>
+            </div>
+
+            <div class="ex-content">
+                <div class="ex-section-head">Tiểu sử & Cuộc đời</div>
+                <div class="ex-bio" id="export-bio">
+                    Đang tải thông tin...
+                </div>
+
+                <div class="ex-roles-title">Quá trình công tác:</div>
+                <ul class="ex-roles" id="export-roles">
+                </ul>
+            </div>
+
+            <div class="ex-footer">
+                <div class="ex-qr-img" id="export-qrcode"></div>
+                <div class="ex-footer-text">
+                    <h3>Sổ Tang Điện Tử</h3>
+                    <p>Quét mã để gửi lời chia buồn<br>Scan to visit memorial page</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+
+    <!-- EXPORT CONTAINER CŨ - STANDEE CEREMONY STYLE -->
+    <div id="export-container-old">
+        <div class="standee-top-text">HOA VIÊN BÌNH DƯƠNG</div>
+        <div class="standee-title">TƯỞNG NIỆM</div>
+
+        <div class="st-portrait-frame">
+            <img id="export-avatar-old" class="st-portrait" src="" alt="Avatar">
+        </div>
+
+        <div class="st-info">
+            <div class="st-name" id="export-name-old">...</div>
+            <div class="st-years" id="export-years-old">...</div>
+        </div>
+
+        <div class="st-qr-section">
+            <div class="st-qr-text">
+                <h3>SỔ TANG ĐIỆN TỬ</h3>
+                <div class="st-qr-box" id="export-qrcode-old"></div>
+                <p>Quét mã để gửi lời chia buồn<br>Scan to visit memorial page</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_BASE_URL = "https://cphaco-backend-api.onrender.com"; 
         let isEditMode = false; 
 
-        // Hàm Toggle Menu Mobile
         function toggleSidebar() {
             document.querySelector('.sidebar').classList.toggle('active');
             document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
-
-        // Close sidebar khi click overlay
         document.querySelector('.sidebar-overlay').addEventListener('click', toggleSidebar);
 
         try { tinymce.init({ selector: '#biography_editor', height: 350, skin: 'oxide', plugins: 'lists link code', toolbar: 'undo redo | bold italic | bullist numlist', menubar: false }); } catch(e){}
 
-        // --- HÀM TỰ ĐỘNG SINH MÃ (AUTO-SLUG) ---
         function generateIdFromName(name) {
             const idInput = document.getElementById('job_id');
             if (isEditMode) return; 
@@ -244,7 +590,6 @@
             idInput.value = slug;
         }
 
-        // --- TOAST & CONFIRM ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const id = 'toast-' + Date.now();
@@ -269,7 +614,7 @@
             if (modal) modal.hide();
         });
 
-        // --- UI HELPERS ---
+        // UI HELPERS
         function addLocationRow(data = null) {
             const wrapper = document.getElementById('locations-wrapper');
             if(wrapper.querySelector('.empty-loc-msg')) wrapper.innerHTML = '';
@@ -306,7 +651,6 @@
             document.getElementById('tab-create').style.display = 'none';
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
-            // Đóng sidebar nếu đang ở mobile
             if (window.innerWidth < 992) {
                 document.querySelector('.sidebar').classList.remove('active');
                 document.querySelector('.sidebar-overlay').classList.remove('active');
@@ -332,7 +676,34 @@
                 tbody.innerHTML = '';
                 if (json.items && json.items.length > 0) {
                     json.items.forEach((p, index) => {
-                        tbody.innerHTML += `<tr><td class="text-muted fw-bold">${index + 1}</td><td><span class="badge bg-light text-dark border text-truncate" style="max-width: 100px;">${p.job_id}</span><div class="mt-1 d-flex gap-2"><a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-link"></i> Web</a><a href="screen.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-tv"></i> TV</a></div></td><td class="fw-bold text-primary">${p.full_name}</td><td class="text-muted small d-none d-md-table-cell">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td><td class="text-end"><div class="d-flex justify-content-end gap-1"><button class="btn btn-light btn-sm text-primary" onclick="editProfile('${p.job_id}')"><i class="fas fa-pen"></i></button><button class="btn btn-light btn-sm text-warning" onclick="manageTributes('${p.job_id}')"><i class="fas fa-comment-dots"></i></button><button class="btn btn-light btn-sm text-danger" onclick="deleteProfile('${p.job_id}')"><i class="fas fa-trash"></i></button></div></td></tr>`;
+                        tbody.innerHTML += `
+                        <tr>
+                            <td class="text-muted fw-bold">${index + 1}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border text-truncate" style="max-width: 100px;">${p.job_id}</span>
+                                <div class="mt-1 d-flex gap-2">
+                                    <a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-link"></i> Web</a>
+                                    <a href="profile.html?job=${p.job_id}" target="_blank" class="text-decoration-none small"><i class="fas fa-tv"></i> TV</a>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-primary">${p.full_name}</td>
+                            <td class="text-muted small d-none d-md-table-cell">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <!--
+                                    <button class="btn btn-light btn-sm text-info border" onclick="downloadStandee('${p.job_id}')" title="Tải ảnh (Mới - Profile)">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    -->
+                                    <button class="btn btn-light btn-sm text-warning border" onclick="downloadStandeeOld('${p.job_id}')" title="Tải ảnh (Cũ - Standee)">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                    <button class="btn btn-light btn-sm text-primary" onclick="editProfile('${p.job_id}')"><i class="fas fa-pen"></i></button>
+                                    <button class="btn btn-light btn-sm text-warning" onclick="manageTributes('${p.job_id}')"><i class="fas fa-comment-dots"></i></button>
+                                    <button class="btn btn-light btn-sm text-danger" onclick="deleteProfile('${p.job_id}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5">Chưa có dữ liệu</td></tr>'; }
             } catch (e) { showToast('Lỗi tải danh sách: ' + e.message, 'error'); }
@@ -373,7 +744,7 @@
             isEditMode = false;
             document.getElementById('profileForm').reset();
             document.getElementById('job_id').value = "";
-            document.getElementById('job_id').readOnly = true; // Vẫn khóa vì dùng Auto-Slug
+            document.getElementById('job_id').readOnly = true; 
             document.getElementById('form-title').textContent = "Tạo Hồ Sơ Mới";
             if(tinymce.get('biography_editor')) tinymce.get('biography_editor').setContent('');
             document.getElementById('locations-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-loc-msg">Chưa có địa điểm nào.</div>';
@@ -443,7 +814,177 @@
             });
         }
 
+        // --- HÀM DOWNLOAD ẢNH STANDEE (GIAO DIỆN PROFILE.HTML - HERO STYLE) ---
+        async function downloadStandee(jobId) {
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/page/${jobId}`);
+                const json = await res.json();
+                const data = json.data;
+
+                // Điền thông tin vào Hero
+                document.getElementById('export-hero-title').textContent = data.full_name;
+                document.getElementById('export-hero-years').textContent = data.date_range || '';
+                
+                const heroEl = document.getElementById('export-hero');
+                if (data.cover_url) {
+                    heroEl.style.backgroundImage = `url('${data.cover_url}')`;
+                } else {
+                    heroEl.style.backgroundImage = 'none';
+                    heroEl.style.backgroundColor = '#333';
+                }
+
+                // Điền thông tin vào Card
+                document.getElementById('export-name').textContent = data.full_name;
+                document.getElementById('export-years').textContent = data.date_range || '';
+
+                // Điền avatar
+                const imgEl = document.getElementById('export-avatar');
+                if(data.avatar_url) {
+                    imgEl.crossOrigin = "anonymous";
+                    imgEl.src = data.avatar_url;
+                } else {
+                    imgEl.src = "https://via.placeholder.com/280x360?text=No+Image";
+                }
+
+                // Điền tiểu sử (lấy text thuần từ HTML)
+                const bioEl = document.getElementById('export-bio');
+                if(data.biography) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = data.biography;
+                    const bioText = tempDiv.textContent || tempDiv.innerText || '';
+                    bioEl.textContent = bioText.length > 450 ? bioText.substring(0, 450) + '...' : bioText;
+                } else {
+                    bioEl.textContent = 'Chưa cập nhật tiểu sử.';
+                }
+
+                // Điền danh sách chức vụ
+                const rolesEl = document.getElementById('export-roles');
+                rolesEl.innerHTML = '';
+                if(data.career_roles && data.career_roles.length > 0) {
+                    data.career_roles.forEach(role => {
+                        const li = document.createElement('li');
+                        li.textContent = role;
+                        rolesEl.appendChild(li);
+                    });
+                } else {
+                    rolesEl.innerHTML = '<li>Chưa có thông tin.</li>';
+                }
+
+                // --- TẠO MÃ QR ---
+                const qrContainer = document.getElementById('export-qrcode');
+                qrContainer.innerHTML = '';
+                
+                let baseUrl = window.location.href;
+                if (baseUrl.endsWith(".html")) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                } else if (baseUrl.endsWith("/")) {
+                    baseUrl = baseUrl.slice(0, -1);
+                }
+                const targetUrl = `${baseUrl}/profile.html?job=${jobId}`;
+                
+                new QRCode(qrContainer, {
+                    text: targetUrl, width: 140, height: 140,
+                    colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // Chụp ảnh
+                const capture = () => {
+                    setTimeout(() => {
+                        html2canvas(document.getElementById("export-container"), {
+                            scale: 1, useCORS: true, allowTaint: true, backgroundColor: null, logging: false
+                        }).then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = `Standee-${data.full_name}.png`;
+                            link.href = canvas.toDataURL("image/png");
+                            link.click();
+                            showToast('Đã tải ảnh thành công!', 'success');
+                            showLoading(false);
+                        });
+                    }, 100);
+                };
+
+                if (imgEl.complete) capture();
+                else {
+                    imgEl.onload = capture;
+                    imgEl.onerror = capture;
+                }
+
+            } catch (e) {
+                console.error(e);
+                showToast('Lỗi tạo ảnh: ' + e.message, 'error');
+                showLoading(false);
+            }
+        }
+
+        // --- HÀM DOWNLOAD ẢNH STANDEE CŨ (GIAO DIỆN CEREMONY STYLE) ---
+        async function downloadStandeeOld(jobId) {
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/memorial/page/${jobId}`);
+                const json = await res.json();
+                const data = json.data;
+
+                // Điền thông tin vào Template cũ
+                document.getElementById('export-name-old').textContent = data.full_name;
+                document.getElementById('export-years-old').textContent = data.date_range || '';
+
+                const imgEl = document.getElementById('export-avatar-old');
+                if(data.avatar_url) {
+                    imgEl.crossOrigin = "anonymous";
+                    imgEl.src = data.avatar_url;
+                } else {
+                    imgEl.src = "https://via.placeholder.com/500x680?text=No+Image";
+                }
+
+                // Tạo QR
+                const qrContainer = document.getElementById('export-qrcode-old');
+                qrContainer.innerHTML = '';
+                
+                let baseUrl = window.location.href;
+                if (baseUrl.endsWith(".html")) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                } else if (baseUrl.endsWith("/")) {
+                    baseUrl = baseUrl.slice(0, -1);
+                }
+                const targetUrl = `${baseUrl}/profile.html?job=${jobId}`;
+                
+                new QRCode(qrContainer, {
+                    text: targetUrl, width: 240, height: 240,
+                    colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // Chụp ảnh
+                const capture = () => {
+                    setTimeout(() => {
+                        html2canvas(document.getElementById("export-container-old"), {
+                            scale: 1, useCORS: true, allowTaint: true, backgroundColor: null, logging: false
+                        }).then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = `Standee-Ceremony-${data.full_name}.png`;
+                            link.href = canvas.toDataURL("image/png");
+                            link.click();
+                            showToast('Đã tải ảnh (Giao diện cũ) thành công!', 'success');
+                            showLoading(false);
+                        });
+                    }, 100);
+                };
+
+                if (imgEl.complete) capture();
+                else {
+                    imgEl.onload = capture;
+                    imgEl.onerror = capture;
+                }
+
+            } catch (e) {
+                console.error(e);
+                showToast('Lỗi tạo ảnh: ' + e.message, 'error');
+                showLoading(false);
+            }
+        }
+
         function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+        
         loadProfilesList();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
