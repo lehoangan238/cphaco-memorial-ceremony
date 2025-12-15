@@ -69,6 +69,40 @@
       text-align: center;
     }
 
+    /* Hoa văn trang trí */
+    .ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 25px;
+      opacity: 0.9;
+    }
+    .ornament-line {
+      width: 180px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--text-gold), transparent);
+    }
+    .ornament-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-gold);
+      font-size: 24px;
+    }
+    .ornament-diamond {
+      width: 12px;
+      height: 12px;
+      background: var(--text-gold);
+      transform: rotate(45deg);
+    }
+    .ornament-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-gold);
+      border-radius: 50%;
+    }
+
     .main-title {
       font-size: 72px;
       font-weight: 700;
@@ -276,7 +310,7 @@
       
       <!-- Đồng hồ thời gian thực -->
       <div class="clock-widget">
-        <div class="clock-date" id="clock-date">15/12/2025</div>
+        <div class="clock-date" id="clock-date">Chủ Nhật, 15/12/2025</div>
         <div class="clock-time" id="clock-time">00:00:00</div>
       </div>
       
@@ -287,8 +321,18 @@
       <div class="corner-decoration corner-bl"></div>
       <div class="corner-decoration corner-br"></div>
 
-      <div class="top-text">HOA VIÊN NGHĨA TRANG BÌNH DƯƠNG</div>
-      <div class="main-title">TƯỞNG NIỆM</div>
+      <div class="top-text">HOA VIÊN NGHĨA TRANG BÌNH DƯƠNG</div>      
+      <!-- Hoa văn trang trí -->
+      <div class="ornament">
+        <div class="ornament-line"></div>
+        <div class="ornament-center">
+          <div class="ornament-dot"></div>
+          <div class="ornament-diamond"></div>
+          <div class="ornament-dot"></div>
+        </div>
+        <div class="ornament-line"></div>
+      </div>
+            <div class="main-title">TƯỞNG NIỆM</div>
 
       <div class="portrait-frame">
         <img id="display-avatar" class="portrait-img" src="" alt="Chân dung">
@@ -323,6 +367,8 @@
     let currentIndex = 0;
 
     // === ĐỒNG HỒ THỜI GIAN THỰC ===
+    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    
     function updateClock() {
       const now = new Date();
       
@@ -332,11 +378,12 @@
       const seconds = String(now.getSeconds()).padStart(2, '0');
       document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
       
-      // Ngày/Tháng/Năm
+      // Thứ, Ngày/Tháng/Năm
+      const dayName = daysOfWeek[now.getDay()];
       const day = String(now.getDate()).padStart(2, '0');
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const year = now.getFullYear();
-      document.getElementById('clock-date').textContent = `${day}/${month}/${year}`;
+      document.getElementById('clock-date').textContent = `${dayName}, ${day}/${month}/${year}`;
     }
     
     // Cập nhật đồng hồ mỗi giây
