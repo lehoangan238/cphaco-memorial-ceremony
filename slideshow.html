@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>Trình Chiếu Tưởng Niệm</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="CPH LOGO 1.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      /* Màu sắc từ mẫu Standee cũ */
+      --bg-gradient: linear-gradient(180deg, #101828 0%, #05080F 100%);
+      --text-gold: #fbbf24;
+      --text-white: #ffffff;
+      --text-grey: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      margin: 0; 
+      min-height: 100vh; 
+      background: #000;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-family: 'Roboto', sans-serif; 
+      overflow: hidden; 
+    }
+    
+    /* Wrapper để căn giữa màn hình */
+    .screen-wrapper {
+      width: 100vw; 
+      height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+    }
+
+    /* Container chính: Kích thước 1080x1920 chuẩn Standee */
+    .standee-container {
+      width: 1080px; 
+      height: 1920px;
+      background: var(--bg-gradient);
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
+      padding: 100px 80px; /* Padding giống mẫu cũ */
+      color: var(--text-white); 
+      transform-origin: center center;
+      transition: opacity 1s ease-in-out; 
+      opacity: 0; 
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    }
+    .standee-container.visible { opacity: 1; }
+
+    /* --- CÁC THÀNH PHẦN GIAO DIỆN CŨ --- */
+    
+    /* 1. Logo & Tiêu đề trên */
+    .top-text {
+      font-size: 48px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-gold);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .main-title {
+      font-size: 72px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 80px;
+      color: var(--text-white);
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    /* 2. Khung ảnh chân dung */
+    .portrait-frame {
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      margin-bottom: 50px;
+      width: fit-content;
+    }
+
+    .portrait-img {
+      width: 500px;
+      height: 680px;
+      object-fit: cover;
+      display: block;
+      background: #000; /* Màu nền khi chưa load ảnh */
+    }
+
+    /* 3. Thông tin người mất */
+    .info-section {
+      text-align: center;
+      margin-bottom: auto; /* Đẩy phần dưới xuống đáy */
+    }
+
+    .info-name {
+      font-size: 64px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-white);
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .info-years {
+      font-size: 36px;
+      color: var(--text-grey);
+      font-weight: 400;
+    }
+
+    /* 4. Phần QR Code */
+    .qr-section {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding-bottom: 40px;
+    }
+
+    .qr-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+    }
+
+    .qr-title {
+      font-size: 32px;
+      color: var(--text-gold);
+      margin: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .qr-note {
+      font-size: 20px;
+      color: #e2e8f0;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Progress bar */
+    #progress-bar {
+        position: fixed; bottom: 0; left: 0; height: 6px; 
+        background: var(--text-gold); width: 0%; z-index: 9999;
+        box-shadow: 0 -2px 10px rgba(251, 191, 36, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div id="progress-bar"></div>
+  
+  <div class="screen-wrapper">
+    <div class="standee-container" id="main-content">
+      
+      <div class="top-text">HOA VIÊN BÌNH DƯƠNG</div>
+      <div class="main-title">TƯỞNG NIỆM</div>
+
+      <div class="portrait-frame">
+        <img id="display-avatar" class="portrait-img" src="" alt="Chân dung">
+      </div>
+
+      <div class="info-section">
+        <div class="info-name" id="display-name">...</div>
+        <div class="info-years" id="display-years">...</div>
+      </div>
+
+      <div class="qr-section">
+        <div class="qr-content">
+            <h3 class="qr-title">SỔ TANG ĐIỆN TỬ</h3>
+            <div class="qr-box" id="qr-container"></div>
+            <p class="qr-note">Quét mã để gửi lời chia buồn<br>Scan to visit memorial page</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = "https://cphaco-backend-api.onrender.com";
+    
+    // --- LẤY CẤU HÌNH TỪ URL ---
+    const params = new URLSearchParams(window.location.search);
+    const rawIds = params.get('ids'); 
+    const idList = rawIds ? rawIds.split(',') : [];
+    const intervalSec = parseInt(params.get('time')) || 30;
+    
+    let currentIndex = 0;
+
+    // --- SCALE UI (Để vừa khít màn hình trình duyệt) ---
+    function scaleToFit() {
+      const container = document.querySelector('.standee-container');
+      // Tỉ lệ scale dựa trên chiều cao hoặc chiều rộng cửa sổ
+      const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+      container.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', scaleToFit); 
+    window.addEventListener('load', scaleToFit);
+    scaleToFit();
+
+    // --- LOGIC TRÌNH CHIẾU ---
+    async function showSlide(index) {
+        const container = document.getElementById('main-content');
+        const progressBar = document.getElementById('progress-bar');
+
+        if (idList.length === 0) {
+            document.getElementById('display-name').textContent = "Chưa chọn hồ sơ";
+            document.getElementById('display-years').textContent = "Vui lòng kiểm tra lại";
+            document.getElementById('display-avatar').style.display = 'none';
+            container.classList.add('visible');
+            return;
+        }
+
+        const jobId = idList[index];
+
+        // 1. Fade Out (Ẩn đi)
+        container.classList.remove('visible');
+        progressBar.style.width = '0%';
+        progressBar.style.transition = 'none';
+
+        setTimeout(async () => {
+            try {
+                // 2. Tải dữ liệu
+                const res = await fetch(`${API_BASE_URL}/api/memorial/screen/${encodeURIComponent(jobId)}`);
+                if (!res.ok) throw new Error("Lỗi tải");
+                const json = await res.json();
+                const data = json.data;
+                const info = data.info;
+
+                // 3. Cập nhật giao diện
+                document.getElementById("display-name").textContent = info.name;
+                document.getElementById("display-years").textContent = info.years;
+                
+                // Xử lý ảnh
+                const imgEl = document.getElementById("display-avatar");
+                if (info.portrait) {
+                    imgEl.src = info.portrait;
+                    imgEl.style.display = 'block';
+                } else {
+                    imgEl.src = "https://via.placeholder.com/500x680?text=No+Image";
+                }
+
+                // Xử lý QR Code
+                const qrContainer = document.getElementById("qr-container");
+                qrContainer.innerHTML = '';
+                
+                // Tạo link về trang profile.html
+                let baseUrl = window.location.href.split('?')[0]; 
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
+                const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}`;
+                
+                // Render QR (kích thước lớn hơn chút cho dễ quét trên TV)
+                new QRCode(qrContainer, { 
+                    text: targetUrl, 
+                    width: 200, 
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // 4. Fade In (Hiện lên)
+                container.classList.add('visible');
+
+                // 5. Chạy thanh Progress Bar & Hẹn giờ chuyển slide
+                setTimeout(() => {
+                    progressBar.style.transition = `width ${intervalSec}s linear`;
+                    progressBar.style.width = '100%';
+                }, 100);
+
+            } catch (err) {
+                console.error(err);
+                // Nếu lỗi thì bỏ qua, đợi 2s rồi chuyển tiếp
+                setTimeout(nextSlide, 2000); 
+            }
+        }, 1000); // Đợi 1s fade out
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % idList.length;
+        showSlide(currentIndex);
+    }
+
+    // Bắt đầu chạy
+    showSlide(0);
+    // Thời gian lặp = thời gian cài đặt + 1.2s (thời gian hiệu ứng mờ)
+    setInterval(nextSlide, intervalSec * 1000 + 1200); 
+  </script>
+</body>
+</html>
