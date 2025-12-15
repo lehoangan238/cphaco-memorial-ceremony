@@ -10,11 +10,11 @@
 
   <style>
     :root {
-      /* Màu sắc - Light theme */
-      --bg-gradient: #ffffff;
-      --text-gold: #b8860b;
-      --text-white: #1a1a1a;
-      --text-grey: #555555;
+      /* Màu sắc từ mẫu Standee cũ */
+      --bg-gradient: linear-gradient(180deg, #101828 0%, #05080F 100%);
+      --text-gold: #fbbf24;
+      --text-white: #ffffff;
+      --text-grey: #94a3b8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,7 +22,7 @@
     body {
       margin: 0; 
       min-height: 100vh; 
-      background: #e0e0e0;
+      background: #000;
       display: flex; 
       align-items: center; 
       justify-content: center;
@@ -76,16 +76,16 @@
       letter-spacing: 4px;
       margin-bottom: 80px;
       color: var(--text-white);
-      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
       text-align: center;
     }
 
     /* 2. Khung ảnh chân dung */
     .portrait-frame {
       padding: 10px;
-      background: rgba(0,0,0,0.05);
-      border: 1px solid rgba(0,0,0,0.15);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       margin-bottom: 50px;
       width: fit-content;
     }
@@ -95,7 +95,7 @@
       height: 820px;
       object-fit: cover;
       display: block;
-      background: #f5f5f5; /* Màu nền khi chưa load ảnh */
+      background: #000; /* Màu nền khi chưa load ảnh */
     }
 
     /* 3. Thông tin người mất */
@@ -163,7 +163,7 @@
 
     .qr-note {
       font-size: 20px;
-      color: #666666;
+      color: #e2e8f0;
       margin: 0;
       line-height: 1.5;
     }
