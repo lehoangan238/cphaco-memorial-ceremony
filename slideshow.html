@@ -5,7 +5,7 @@
   <title>Trình Chiếu Tưởng Niệm</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="icon" type="image/png" href="CPH LOGO 1.png">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -100,6 +100,7 @@
 
     /* 3. Thông tin người mất */
     .info-section {
+      position: relative; z-index: 1;
       text-align: center;
       margin-bottom: auto; /* Đẩy phần dưới xuống đáy */
     }
@@ -118,9 +119,18 @@
       color: var(--text-grey);
       font-weight: 400;
     }
+    
+    /* Divider trang trí */
+    .divider {
+      width: 200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--text-gold), transparent);
+      margin: 30px auto;
+    }
 
     /* 4. Phần QR Code */
     .qr-section {
+      position: relative; z-index: 1;
       margin-top: 40px;
       display: flex;
       justify-content: center;
@@ -172,7 +182,14 @@
   <div class="screen-wrapper">
     <div class="standee-container" id="main-content">
       
-      <div class="top-text">HOA VIÊN BÌNH DƯƠNG</div>
+      <!-- Trang trí nền -->
+      <div class="bg-pattern"></div>
+      <div class="corner-decoration corner-tl"></div>
+      <div class="corner-decoration corner-tr"></div>
+      <div class="corner-decoration corner-bl"></div>
+      <div class="corner-decoration corner-br"></div>
+
+      <div class="top-text">HOA VIÊN NGHĨA TRANG BÌNH DƯƠNG</div>
       <div class="main-title">TƯỞNG NIỆM</div>
 
       <div class="portrait-frame">
@@ -181,6 +198,7 @@
 
       <div class="info-section">
         <div class="info-name" id="display-name">...</div>
+        <div class="divider"></div>
         <div class="info-years" id="display-years">...</div>
       </div>
 
