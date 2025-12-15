@@ -108,7 +108,8 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 4px;
-      margin-bottom: 80px;
+      margin-top: 40px;
+      margin-bottom: 30px;
       color: var(--text-white);
       text-shadow: 0 4px 20px rgba(0,0,0,0.5);
       text-align: center;
@@ -367,8 +368,6 @@
     let currentIndex = 0;
 
     // === ĐỒNG HỒ THỜI GIAN THỰC ===
-    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-    
     function updateClock() {
       const now = new Date();
       
@@ -378,12 +377,11 @@
       const seconds = String(now.getSeconds()).padStart(2, '0');
       document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
       
-      // Thứ, Ngày/Tháng/Năm
-      const dayName = daysOfWeek[now.getDay()];
+      // Ngày/Tháng/Năm
       const day = String(now.getDate()).padStart(2, '0');
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const year = now.getFullYear();
-      document.getElementById('clock-date').textContent = `${dayName}, ${day}/${month}/${year}`;
+      document.getElementById('clock-date').textContent = `${day}/${month}/${year}`;
     }
     
     // Cập nhật đồng hồ mỗi giây
