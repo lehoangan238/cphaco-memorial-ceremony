@@ -174,6 +174,103 @@
         background: var(--text-gold); width: 0%; z-index: 9999;
         box-shadow: 0 -2px 10px rgba(251, 191, 36, 0.5);
     }
+
+    /* === ĐỒNG HỒ THỜI GIAN THỰC (trong standee) === */
+    .clock-widget {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: 'Roboto', sans-serif;
+    }
+    .clock-date {
+      font-size: 24px;
+      color: var(--text-white);
+      opacity: 0.9;
+    }
+    .clock-time {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text-gold);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+    }
+
+    /* === HIỆU ỨNG CHUYỂN SLIDE === */
+    .standee-container {
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out, filter 0.8s ease-in-out;
+    }
+
+    /* Fade (mặc định) */
+    .standee-container.fade-out {
+      opacity: 0;
+    }
+    .standee-container.fade-in {
+      opacity: 1;
+    }
+
+    /* Zoom In */
+    .standee-container.zoom-in-out {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    .standee-container.zoom-in-in {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Zoom Out */
+    .standee-container.zoom-out-out {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+    .standee-container.zoom-out-in {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Slide Left */
+    .standee-container.slide-left-out {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    .standee-container.slide-left-in {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Slide Right */
+    .standee-container.slide-right-out {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    .standee-container.slide-right-in {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Blur */
+    .standee-container.blur-out {
+      opacity: 0;
+      filter: blur(20px);
+    }
+    .standee-container.blur-in {
+      opacity: 1;
+      filter: blur(0);
+    }
+
+    /* Slide Up */
+    .standee-container.slide-up-out {
+      opacity: 0;
+      transform: translateY(-80px);
+    }
+    .standee-container.slide-up-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -181,6 +278,12 @@
   
   <div class="screen-wrapper">
     <div class="standee-container" id="main-content">
+      
+      <!-- Đồng hồ thời gian thực -->
+      <div class="clock-widget">
+        <div class="clock-date" id="clock-date">Chủ Nhật, 15/12/2025</div>
+        <div class="clock-time" id="clock-time">00:00:00</div>
+      </div>
       
       <!-- Trang trí nền -->
       <div class="bg-pattern"></div>
@@ -224,6 +327,55 @@
     
     let currentIndex = 0;
 
+    // === ĐỒNG HỒ THỜI GIAN THỰC ===
+    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    
+    function updateClock() {
+      const now = new Date();
+      
+      // Giờ:Phút:Giây
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
+      
+      // Thứ, Ngày/Tháng/Năm
+      const dayName = daysOfWeek[now.getDay()];
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      document.getElementById('clock-date').textContent = `${dayName}, ${day}/${month}/${year}`;
+    }
+    
+    // Cập nhật đồng hồ mỗi giây
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // === HIỆU ỨNG CHUYỂN SLIDE ===
+    const transitionEffects = ['fade', 'zoom-in', 'zoom-out', 'slide-left', 'slide-right', 'blur', 'slide-up'];
+    let currentEffect = 'fade';
+    
+    function getRandomEffect() {
+      return transitionEffects[Math.floor(Math.random() * transitionEffects.length)];
+    }
+    
+    function applyTransitionOut(container) {
+      currentEffect = getRandomEffect();
+      // Xóa tất cả class cũ
+      transitionEffects.forEach(effect => {
+        container.classList.remove(`${effect}-out`, `${effect}-in`);
+      });
+      container.classList.remove('visible');
+      // Thêm class out mới
+      container.classList.add(`${currentEffect}-out`);
+    }
+    
+    function applyTransitionIn(container) {
+      container.classList.remove(`${currentEffect}-out`);
+      container.classList.add(`${currentEffect}-in`);
+      container.classList.add('visible');
+    }
+
     // --- SCALE UI (Để vừa khít màn hình trình duyệt) ---
     function scaleToFit() {
       const container = document.querySelector('.standee-container');
@@ -250,8 +402,8 @@
 
         const jobId = idList[index];
 
-        // 1. Fade Out (Ẩn đi)
-        container.classList.remove('visible');
+        // 1. Transition Out với hiệu ứng ngẫu nhiên
+        applyTransitionOut(container);
         progressBar.style.width = '0%';
         progressBar.style.transition = 'none';
 
@@ -296,8 +448,8 @@
                     correctLevel : QRCode.CorrectLevel.H
                 });
 
-                // 4. Fade In (Hiện lên)
-                container.classList.add('visible');
+                // 4. Transition In với hiệu ứng
+                applyTransitionIn(container);
 
                 // 5. Chạy thanh Progress Bar & Hẹn giờ chuyển slide
                 setTimeout(() => {
