@@ -186,17 +186,12 @@
       gap: 20px;
       font-family: 'Roboto', sans-serif;
     }
-    .clock-date {
-      font-size: 24px;
+    .clock-date,
+    .clock-time {
+      font-size: 28px;
+      font-weight: 500;
       color: var(--text-white);
       opacity: 0.9;
-    }
-    .clock-time {
-      font-size: 42px;
-      font-weight: 700;
-      color: var(--text-gold);
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      letter-spacing: 2px;
     }
 
     /* === HIỆU ỨNG CHUYỂN SLIDE === */
@@ -281,7 +276,7 @@
       
       <!-- Đồng hồ thời gian thực -->
       <div class="clock-widget">
-        <div class="clock-date" id="clock-date">Chủ Nhật, 15/12/2025</div>
+        <div class="clock-date" id="clock-date">15/12/2025</div>
         <div class="clock-time" id="clock-time">00:00:00</div>
       </div>
       
@@ -328,8 +323,6 @@
     let currentIndex = 0;
 
     // === ĐỒNG HỒ THỜI GIAN THỰC ===
-    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-    
     function updateClock() {
       const now = new Date();
       
@@ -339,12 +332,11 @@
       const seconds = String(now.getSeconds()).padStart(2, '0');
       document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
       
-      // Thứ, Ngày/Tháng/Năm
-      const dayName = daysOfWeek[now.getDay()];
+      // Ngày/Tháng/Năm
       const day = String(now.getDate()).padStart(2, '0');
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const year = now.getFullYear();
-      document.getElementById('clock-date').textContent = `${dayName}, ${day}/${month}/${year}`;
+      document.getElementById('clock-date').textContent = `${day}/${month}/${year}`;
     }
     
     // Cập nhật đồng hồ mỗi giây
