@@ -305,7 +305,7 @@
             }
         }
 
-        /* --- EXPORT CONTAINER (HIDDEN INITIALLY) --- */
+        /* --- EXPORT CONTAINER --- */
         #export-container {
             position: fixed; 
             top: 0; 
@@ -316,7 +316,7 @@
             display: flex; flex-direction: column;
             padding: 60px 40px; box-sizing: border-box; 
             z-index: -100;
-            visibility: hidden; /* Ẩn mặc định */
+            /* ĐÃ XOÁ visibility: hidden để tránh lỗi không vẽ QR */
         }
         #export-container .top-logo { text-align: center; margin-bottom: 40px; }
         #export-container .top-logo img { height: 120px; }
@@ -351,6 +351,11 @@
         #export-container .qr-code-box {
             background: white; padding: 15px; border-radius: 10px;
         }
+        
+        /* QUAN TRỌNG: FIX LỖI MẤT QR KHI XUẤT ẢNH */
+        #export-qrcode canvas { display: none !important; }
+        #export-qrcode img { display: block !important; width: 100%; }
+
         #export-container .qr-text { text-align: left; }
         #export-container .qr-text h3 {
             font-size: 30px; margin: 0 0 10px; color: #fbbf24; text-transform: uppercase;
@@ -640,14 +645,13 @@
         // Lưu lại vị trí cũ
         const originalLeft = element.style.left;
         const originalTop = element.style.top;
-        const originalVisibility = element.style.visibility;
+        const originalZIndex = element.style.zIndex;
         
         // Đưa về 0,0 nhưng nằm dưới lớp dưới cùng
         element.style.left = "0px";
         element.style.top = "0px";
         element.style.zIndex = "-9999"; 
-        element.style.visibility = "visible"; // Bắt buộc hiện
-
+        
         // Chờ 500ms cho QR code kịp vẽ ra rồi mới chụp
         setTimeout(() => {
             html2canvas(element, {
@@ -662,8 +666,7 @@
                 // Trả lại vị trí cũ ngay lập tức
                 element.style.left = originalLeft || "-9999px";
                 element.style.top = originalTop || "0";
-                element.style.visibility = originalVisibility || "hidden";
-                element.style.zIndex = "-100";
+                element.style.zIndex = originalZIndex || "-100";
 
                 // Tải ảnh về
                 const link = document.createElement('a');
@@ -681,7 +684,7 @@
                 // Trả lại vị trí cũ nếu lỗi
                 element.style.left = originalLeft || "-9999px";
                 element.style.top = originalTop || "0";
-                element.style.visibility = originalVisibility || "hidden";
+                element.style.zIndex = originalZIndex || "-100";
                 
                 btn.innerHTML = oldText;
                 btn.disabled = false;
