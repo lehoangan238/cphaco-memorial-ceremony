@@ -349,13 +349,10 @@
         }
         
         /* FIX: Cho phép hiển thị cả ảnh và canvas trong khung export */
-        #export-qrcode img { 
+        #export-qrcode img, #export-qrcode canvas { 
             display: block !important; 
             width: 100% !important; 
             height: auto !important;
-        }
-        #export-qrcode canvas {
-            display: none; /* Mặc định ẩn canvas, ta sẽ chuyển nó thành ảnh */
         }
 
         #export-container .qr-text { text-align: left; }
@@ -581,7 +578,7 @@
                 const imgData = qrCanvas.toDataURL("image/png");
                 exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
             }
-        }, 1000);
+        }, 100);
     }
 
     // LOAD DỮ LIỆU TỪ SERVER
@@ -650,6 +647,7 @@
     function downloadImage() {
         const element = document.getElementById('export-container');
         const btn = document.querySelector('button[onclick="downloadImage()"]');
+        const exportQrDiv = document.getElementById('export-qrcode');
         
         // Hiệu ứng loading
         const oldText = btn.innerHTML;
@@ -665,9 +663,30 @@
         element.style.top = "0px";
         element.style.zIndex = "-9999"; 
         
-        // B2: Đợi một chút để đảm bảo layout ổn định
+        // B2: TẠO QR CODE MỚI & CHUYỂN THÀNH ẢNH TĨNH NGAY LẬP TỨC
+        exportQrDiv.innerHTML = ""; 
+        const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
+        
+        new QRCode(exportQrDiv, {
+            text: fullUrl,
+            width: 160,
+            height: 160,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // B3: Đợi một chút để QR được vẽ, sau đó ép thành ảnh IMG
         setTimeout(() => {
-            // B3: Chụp lại khung chứa
+            const qrCanvas = exportQrDiv.querySelector('canvas');
+            if (qrCanvas) {
+                // Thủ thuật: Chuyển canvas thành DataURL (ảnh base64)
+                const imgData = qrCanvas.toDataURL("image/png");
+                // Thay thế bằng thẻ IMG tĩnh
+                exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
+            }
+
+            // B4: Chụp lại khung chứa (lúc này đã chứa ảnh tĩnh)
             html2canvas(element, {
                 useCORS: true,       
                 scale: 2,           
