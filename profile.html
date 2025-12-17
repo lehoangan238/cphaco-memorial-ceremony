@@ -80,18 +80,16 @@
             font-size: 18px; font-weight: 600; opacity: 0.9;
         }
 
-        /* --- QR CODE STYLING (ON SCREEN) --- */
+        /* --- QR CODE STYLING --- */
         .hero-qr-container { display: none; }
 
-        /* Chỉnh sửa layout QR Code theo yêu cầu: Dịch trái, Tăng khoảng cách trên */
         body.slideshow-mode .hero-qr-container {
             display: block !important;
-            margin-top: 35px !important; /* Tăng khoảng cách với năm sinh */
-            text-align: left !important; /* Canh trái thẳng hàng với tên */
+            margin-top: 35px !important;
+            text-align: left !important;
             padding-left: 0;
         }
 
-        /* Box chứa QR Code: Trong suốt, bỏ shadow, bỏ viền */
         .hero-qr-box {
             background: transparent !important;
             padding: 0 !important;
@@ -99,7 +97,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: none !important; /* Bỏ bóng đổ */
+            box-shadow: none !important;
             width: 120px;
             height: 120px;
             flex-shrink: 0;
@@ -107,26 +105,22 @@
             overflow: hidden;
         }
 
-        /* --- QUAN TRỌNG: FIX LỖI HIỂN THỊ TRÊN STANDEE --- */
-        /* Luôn hiển thị CANVAS (vẽ trực tiếp), ẩn IMG (ảnh tạo ra sau) */
-        .hero-qr-box canvas { 
-            display: block !important; 
+        /* QR hiển thị trên màn hình Web */
+        .hero-qr-box img {
             width: 100% !important;
             height: auto !important;
+            display: block !important;
         }
-        .hero-qr-box img { 
-            display: none !important; /* Ẩn ảnh đi để tránh lỗi load chậm hoặc không load */
-        }
+        .hero-qr-box canvas { display: none !important; }
 
-        /* Dòng chữ nhỏ dưới QR */
         .hero-qr-text {
             color: #333333;
             font-size: 11px;
             font-weight: 500;
             margin-top: 8px;
             opacity: 0.9;
-            width: 120px;       /* Bằng chiều rộng QR */
-            text-align: center; /* Canh giữa chữ so với QR */
+            width: 120px;
+            text-align: center;
         }
 
         /* Slideshow mode - hide form and buttons */
@@ -308,18 +302,17 @@
             }
         }
 
-        /* --- EXPORT CONTAINER (HIDDEN INITIALLY) --- */
+        /* --- EXPORT CONTAINER --- */
         #export-container {
             position: fixed; 
             top: 0; 
-            left: -9999px; /* Mặc định ẩn ra ngoài màn hình */
+            left: -9999px; 
             width: 1080px; height: 1920px;
             background: linear-gradient(180deg, #1f2937 0%, #000000 100%);
             color: white; font-family: 'Roboto', sans-serif;
             display: flex; flex-direction: column;
             padding: 60px 40px; box-sizing: border-box; 
             z-index: -100;
-            /* Đã xóa visibility: hidden để đảm bảo vẽ được */
         }
         #export-container .top-logo { text-align: center; margin-bottom: 40px; }
         #export-container .top-logo img { height: 120px; }
@@ -355,9 +348,12 @@
             background: white; padding: 15px; border-radius: 10px;
         }
         
-        /* FIX CHO EXPORT: Ưu tiên Canvas */
-        #export-qrcode canvas { display: block !important; }
-        #export-qrcode img { display: none !important; }
+        /* CSS cho phần Xuất Ảnh: Cho phép hiển thị ảnh trong này */
+        #export-qrcode img { 
+            display: block !important; 
+            width: 100% !important; 
+            height: auto !important;
+        }
 
         #export-container .qr-text { text-align: left; }
         #export-container .qr-text h3 {
@@ -541,7 +537,7 @@
         if (IS_SLIDESHOW && JOB_ID) {
             const qrBox = document.getElementById('qr-code-box');
             if (!qrBox) return;
-            qrBox.innerHTML = ''; // Xóa nội dung cũ để tránh bị trùng lặp
+            qrBox.innerHTML = ''; 
 
             const baseUrl = window.location.origin + window.location.pathname;
             const pageUrl = baseUrl + '?job=' + JOB_ID;
@@ -580,7 +576,7 @@
             if (data.avatar_url) {
                 avatar.src = data.avatar_url;
                 avatar.style.display = 'block';
-                avatar.setAttribute('crossOrigin', 'anonymous'); // Quan trọng cho việc tải ảnh
+                avatar.setAttribute('crossOrigin', 'anonymous');
             }
 
             document.getElementById('hero-name').textContent = data.full_name;
@@ -618,17 +614,18 @@
         }
     }
 
-    // --- HÀM TẢI ẢNH FIX LỖI MẤT QR ---
+    // --- HÀM TẢI ẢNH (ĐÃ FIX LỖI MẤT QR) ---
     function downloadImage() {
         const element = document.getElementById('export-container');
         const btn = document.querySelector('button[onclick="downloadImage()"]');
+        const exportQrDiv = document.getElementById('export-qrcode');
         
         // Hiệu ứng loading
         const oldText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
         btn.disabled = true;
 
-        // --- KỸ THUẬT: ĐƯA VỀ 0,0 NHƯNG GIẤU DƯỚI LỚP NỀN ---
+        // B1: Đưa về 0,0 nhưng giấu dưới lớp nền
         const originalLeft = element.style.left;
         const originalTop = element.style.top;
         const originalZIndex = element.style.zIndex;
@@ -637,11 +634,12 @@
         element.style.top = "0px";
         element.style.zIndex = "-9999"; 
         
-        // --- KỸ THUẬT 2: TẠO MỚI QR CODE NGAY LÚC NÀY ---
-        // (Để đảm bảo nó được vẽ khi element đang hiện hữu)
-        const exportQrDiv = document.getElementById('export-qrcode');
-        exportQrDiv.innerHTML = ""; // Xóa cũ
+        // B2: TẠO QR CODE MỚI & CHUYỂN THÀNH ẢNH TĨNH NGAY LẬP TỨC
+        // Reset QR div
+        exportQrDiv.innerHTML = ""; 
         const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
+        
+        // Tạo QR
         new QRCode(exportQrDiv, {
             text: fullUrl,
             width: 160,
@@ -651,8 +649,17 @@
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // Chờ 500ms cho QR code kịp vẽ ra rồi mới chụp
+        // B3: Đợi một chút để QR được vẽ lên Canvas, sau đó ép thành ảnh IMG
         setTimeout(() => {
+            const qrCanvas = exportQrDiv.querySelector('canvas');
+            if (qrCanvas) {
+                // Thủ thuật: Chuyển canvas thành DataURL (ảnh base64)
+                const imgData = qrCanvas.toDataURL("image/png");
+                // Thay thế toàn bộ nội dung trong div bằng thẻ IMG tĩnh
+                exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
+            }
+
+            // B4: Chụp lại khung chứa (lúc này đã chứa ảnh tĩnh)
             html2canvas(element, {
                 useCORS: true,       
                 scale: 2,           
@@ -662,7 +669,7 @@
                 windowWidth: 1080,   
                 windowHeight: 1920
             }).then(canvas => {
-                // Trả lại vị trí cũ ngay lập tức
+                // Trả lại vị trí cũ
                 element.style.left = originalLeft || "-9999px";
                 element.style.top = originalTop || "0";
                 element.style.zIndex = originalZIndex || "-100";
@@ -673,14 +680,12 @@
                 link.href = canvas.toDataURL("image/png");
                 link.click();
 
-                // Reset nút bấm
                 btn.innerHTML = oldText;
                 btn.disabled = false;
             }).catch(err => {
                 console.error("Lỗi xuất ảnh:", err);
                 alert("Không thể tạo ảnh. Vui lòng thử lại.");
                 
-                // Trả lại vị trí cũ nếu lỗi
                 element.style.left = originalLeft || "-9999px";
                 element.style.top = originalTop || "0";
                 element.style.zIndex = originalZIndex || "-100";
@@ -688,7 +693,7 @@
                 btn.innerHTML = oldText;
                 btn.disabled = false;
             });
-        }, 500); // Delay 0.5s
+        }, 300); // Đợi 300ms là đủ
     }
 
     function renderTributes(list) {
