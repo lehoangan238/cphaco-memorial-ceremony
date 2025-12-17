@@ -556,6 +556,34 @@
         }
     }
 
+    // Tạo QR cho khung Export (Booking Poster) ngay khi load
+    function initExportQRCode() {
+        if (!JOB_ID) return;
+        const exportQrDiv = document.getElementById('export-qrcode');
+        if (!exportQrDiv) return;
+        
+        exportQrDiv.innerHTML = ""; 
+        const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
+        
+        new QRCode(exportQrDiv, {
+            text: fullUrl,
+            width: 160,
+            height: 160,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Chuyển canvas thành ảnh tĩnh để html2canvas bắt được
+        setTimeout(() => {
+            const qrCanvas = exportQrDiv.querySelector('canvas');
+            if (qrCanvas) {
+                const imgData = qrCanvas.toDataURL("image/png");
+                exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
+            }
+        }, 1000);
+    }
+
     // LOAD DỮ LIỆU TỪ SERVER
     async function loadData() {
         if (!JOB_ID) {
@@ -610,6 +638,7 @@
 
             renderTributes(data.tributes);
             initQRCode();
+            initExportQRCode();
 
         } catch (err) {
             console.error(err);
@@ -621,7 +650,6 @@
     function downloadImage() {
         const element = document.getElementById('export-container');
         const btn = document.querySelector('button[onclick="downloadImage()"]');
-        const exportQrDiv = document.getElementById('export-qrcode');
         
         // Hiệu ứng loading
         const oldText = btn.innerHTML;
@@ -637,30 +665,9 @@
         element.style.top = "0px";
         element.style.zIndex = "-9999"; 
         
-        // B2: TẠO QR CODE MỚI & CHUYỂN THÀNH ẢNH TĨNH NGAY LẬP TỨC
-        exportQrDiv.innerHTML = ""; 
-        const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
-        
-        new QRCode(exportQrDiv, {
-            text: fullUrl,
-            width: 160,
-            height: 160,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // B3: Đợi một chút để QR được vẽ, sau đó ép thành ảnh IMG
+        // B2: Đợi một chút để đảm bảo layout ổn định
         setTimeout(() => {
-            const qrCanvas = exportQrDiv.querySelector('canvas');
-            if (qrCanvas) {
-                // Thủ thuật: Chuyển canvas thành DataURL (ảnh base64)
-                const imgData = qrCanvas.toDataURL("image/png");
-                // Thay thế bằng thẻ IMG tĩnh
-                exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
-            }
-
-            // B4: Chụp lại khung chứa (lúc này đã chứa ảnh tĩnh)
+            // B3: Chụp lại khung chứa
             html2canvas(element, {
                 useCORS: true,       
                 scale: 2,           
