@@ -81,6 +81,20 @@
         .st-qr-text h3 { font-size: 32px; color: #fbbf24; margin: 0; font-weight: 700; text-transform: uppercase; }
         .st-qr-text p { font-size: 20px; color: #e2e8f0; margin: 0; line-height: 1.5; }
 
+        /* IMAGE UPLOAD */
+        .upload-box { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc; position: relative; }
+        .upload-box:hover { border-color: var(--cph-blue); background: #f0f9ff; }
+        .upload-box.dragging { border-color: var(--cph-blue); background: #e0f2fe; }
+        .upload-box input[type="file"] { display: none; }
+        .upload-box .upload-icon { font-size: 2rem; color: #94a3b8; margin-bottom: 10px; }
+        .upload-box .upload-text { color: #64748b; font-size: 0.9rem; }
+        .upload-box .upload-text span { color: var(--cph-blue); font-weight: 600; }
+        .upload-preview { position: relative; border-radius: 12px; overflow: hidden; }
+        .upload-preview img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; }
+        .upload-preview .remove-btn { position: absolute; top: 10px; right: 10px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .upload-progress { height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 10px; overflow: hidden; display: none; }
+        .upload-progress .bar { height: 100%; background: var(--cph-blue); width: 0%; transition: width 0.3s; }
+
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
@@ -170,8 +184,38 @@
                                     </div>
                                 </div>
                                 <div class="row g-4 mb-5">
-                                    <div class="col-md-6"><label class="form-label">Avatar URL</label><input type="text" class="form-control" id="avatar_url"></div>
-                                    <div class="col-md-6"><label class="form-label">Cover URL</label><input type="text" class="form-control" id="cover_url"></div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ảnh chân dung (Avatar)</label>
+                                        <input type="hidden" id="avatar_url">
+                                        <div id="avatar-upload-area">
+                                            <div class="upload-box" onclick="document.getElementById('avatar_file').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'avatar')">
+                                                <input type="file" id="avatar_file" accept="image/*" onchange="uploadImage(this, 'avatar')">
+                                                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                                                <div class="upload-text"><span>Nhấn để chọn</span> hoặc kéo thả ảnh vào đây</div>
+                                                <div class="upload-progress" id="avatar-progress"><div class="bar"></div></div>
+                                            </div>
+                                        </div>
+                                        <div id="avatar-preview" class="upload-preview mt-2" style="display:none;">
+                                            <img id="avatar-preview-img" src="">
+                                            <button type="button" class="remove-btn" onclick="removeImage('avatar')"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ảnh bìa (Cover)</label>
+                                        <input type="hidden" id="cover_url">
+                                        <div id="cover-upload-area">
+                                            <div class="upload-box" onclick="document.getElementById('cover_file').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'cover')">
+                                                <input type="file" id="cover_file" accept="image/*" onchange="uploadImage(this, 'cover')">
+                                                <div class="upload-icon"><i class="fas fa-image"></i></div>
+                                                <div class="upload-text"><span>Nhấn để chọn</span> hoặc kéo thả ảnh vào đây</div>
+                                                <div class="upload-progress" id="cover-progress"><div class="bar"></div></div>
+                                            </div>
+                                        </div>
+                                        <div id="cover-preview" class="upload-preview mt-2" style="display:none;">
+                                            <img id="cover-preview-img" src="">
+                                            <button type="button" class="remove-btn" onclick="removeImage('cover')"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <h5 class="mb-4 text-primary fw-bold">Nội dung chi tiết</h5>
                                 <div class="mb-4"><label class="form-label">Tiểu sử (Web)</label><div id="biography_editor"></div></div>
@@ -232,12 +276,19 @@
                         <div class="card-body">
                             <h5 class="mb-3 fw-bold text-primary">Cài đặt phát</h5>
                             <div class="mb-3">
+                                <label class="form-label">Kiểu giao diện</label>
+                                <select id="slide-style" class="form-select">
+                                    <option value="standee">🎨 Standee (Tối - Màn hình dọc)</option>
+                                    <option value="profile">📄 Profile (Sáng - Đầy đủ thông tin)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Thời gian mỗi trang (giây)</label>
                                 <input type="number" id="slide-interval" class="form-control" value="30" min="5">
                             </div>
-                            <div class="alert alert-warning small">
-                                <i class="fas fa-tv me-1"></i>
-                                <strong>Lưu ý:</strong> Giao diện trình chiếu được thiết kế dọc (9:16). Thích hợp nhất khi chiếu lên màn hình dọc (Standee) hoặc TV xoay dọc.
+                            <div class="alert alert-info small mb-3" id="style-hint">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Standee:</strong> Giao diện tối, thiết kế dọc 9:16, phù hợp màn hình Standee/TV dọc.
                             </div>
                             <button class="btn btn-success w-100 py-2 fw-bold shadow-sm" onclick="startSlideshow()">
                                 <i class="fas fa-play me-2"></i> BẮT ĐẦU TRÌNH CHIẾU
@@ -263,8 +314,99 @@
 
     <script>
         const API_BASE_URL = "https://cphaco-backend-api.onrender.com"; 
+        const CLOUDINARY_CLOUD_NAME = "dmeljhntk";
+        const CLOUDINARY_UPLOAD_PRESET = "standee-cph";
         let isEditMode = false; 
         let cachedProfiles = []; 
+
+        // --- CLOUDINARY UPLOAD FUNCTIONS ---
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragging');
+        }
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragging');
+        }
+        function handleDrop(e, type) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadToCloudinary(file, type);
+            } else {
+                showToast('Vui lòng chọn file ảnh!', 'error');
+            }
+        }
+        function uploadImage(input, type) {
+            const file = input.files[0];
+            if (file) {
+                uploadToCloudinary(file, type);
+            }
+        }
+        async function uploadToCloudinary(file, type) {
+            const progressBar = document.getElementById(`${type}-progress`);
+            const progressFill = progressBar.querySelector('.bar');
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percent + '%';
+                    }
+                };
+
+                xhr.onload = () => {
+                    progressBar.style.display = 'none';
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        const imageUrl = response.secure_url;
+                        document.getElementById(`${type}_url`).value = imageUrl;
+                        document.getElementById(`${type}-upload-area`).style.display = 'none';
+                        document.getElementById(`${type}-preview`).style.display = 'block';
+                        document.getElementById(`${type}-preview-img`).src = imageUrl;
+                        showToast('Tải ảnh thành công!', 'success');
+                    } else {
+                        showToast('Lỗi tải ảnh: ' + xhr.statusText, 'error');
+                    }
+                };
+
+                xhr.onerror = () => {
+                    progressBar.style.display = 'none';
+                    showToast('Lỗi kết nối!', 'error');
+                };
+
+                xhr.send(formData);
+            } catch (e) {
+                progressBar.style.display = 'none';
+                showToast('Lỗi: ' + e.message, 'error');
+            }
+        }
+        function removeImage(type) {
+            document.getElementById(`${type}_url`).value = '';
+            document.getElementById(`${type}-upload-area`).style.display = 'block';
+            document.getElementById(`${type}-preview`).style.display = 'none';
+            document.getElementById(`${type}-preview-img`).src = '';
+            document.getElementById(`${type}_file`).value = '';
+        }
+        function setImagePreview(type, url) {
+            if (url) {
+                document.getElementById(`${type}_url`).value = url;
+                document.getElementById(`${type}-upload-area`).style.display = 'none';
+                document.getElementById(`${type}-preview`).style.display = 'block';
+                document.getElementById(`${type}-preview-img`).src = url;
+            } else {
+                removeImage(type);
+            }
+        }
 
         function toggleSidebar() {
             document.querySelector('.sidebar').classList.toggle('active');
@@ -438,17 +580,32 @@
             checkboxes.forEach(cb => cb.checked = source.checked);
         }
 
+        // Cập nhật hint khi thay đổi kiểu giao diện
+        document.getElementById('slide-style').addEventListener('change', function() {
+            const hint = document.getElementById('style-hint');
+            if (this.value === 'standee') {
+                hint.className = 'alert alert-info small mb-3';
+                hint.innerHTML = '<i class="fas fa-info-circle me-1"></i><strong>Standee:</strong> Giao diện tối, thiết kế dọc 9:16, phù hợp màn hình Standee/TV dọc.';
+            } else {
+                hint.className = 'alert alert-success small mb-3';
+                hint.innerHTML = '<i class="fas fa-info-circle me-1"></i><strong>Profile:</strong> Giao diện sáng, hiển thị đầy đủ thông tin, có QR code, phù hợp mọi màn hình.';
+            }
+        });
+
         function startSlideshow() {
             const checkboxes = document.querySelectorAll('.slide-check:checked');
             const selectedIds = Array.from(checkboxes).map(cb => cb.value);
             const interval = document.getElementById('slide-interval').value;
+            const style = document.getElementById('slide-style').value;
 
             if (selectedIds.length === 0) {
                 showToast('Vui lòng chọn ít nhất 1 hồ sơ!', 'error');
                 return;
             }
-            // Mở trang slideshow.html
-            const url = `slideshow.html?ids=${selectedIds.join(',')}&time=${interval}`;
+            
+            // Chọn file trình chiếu theo kiểu giao diện
+            const slideshowFile = style === 'profile' ? 'slideshow-profile.html' : 'slideshow.html';
+            const url = `${slideshowFile}?ids=${selectedIds.join(',')}&time=${interval}`;
             window.open(url, '_blank');
         }
 
@@ -465,8 +622,8 @@
                 document.getElementById('job_id').readOnly = true; 
                 document.getElementById('full_name').value = d.full_name;
                 document.getElementById('date_range').value = d.date_range || '';
-                document.getElementById('avatar_url').value = d.avatar_url || '';
-                document.getElementById('cover_url').value = d.cover_url || '';
+                setImagePreview('avatar', d.avatar_url || '');
+                setImagePreview('cover', d.cover_url || '');
                 quill.root.innerHTML = d.biography || '';
                 
                 const roleWrapper = document.getElementById('roles-wrapper'); roleWrapper.innerHTML = '';
@@ -489,6 +646,8 @@
             document.getElementById('job_id').readOnly = true; 
             document.getElementById('form-title').textContent = "Tạo Hồ Sơ Mới";
             quill.root.innerHTML = '';
+            removeImage('avatar');
+            removeImage('cover');
             document.getElementById('locations-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-loc-msg">Chưa có địa điểm nào.</div>';
             document.getElementById('roles-wrapper').innerHTML = '<div class="text-center text-muted mt-5 empty-role-msg">Chưa có chức vụ nào.</div>';
         }

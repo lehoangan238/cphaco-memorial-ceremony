@@ -470,10 +470,10 @@
                 const qrContainer = document.getElementById("qr-container");
                 qrContainer.innerHTML = '';
                 
-                // Tạo link về trang profile.html
+                // Tạo link về trang profile.html (với tham số slideshow=1 để hiển thị QR trên trang profile)
                 let baseUrl = window.location.href.split('?')[0]; 
                 baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
-                const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}`;
+                const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}&slideshow=1`;
                 
                 // Render QR (kích thước lớn hơn chút cho dễ quét trên TV)
                 new QRCode(qrContainer, { 
