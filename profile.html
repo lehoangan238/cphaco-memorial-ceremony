@@ -84,10 +84,19 @@
         .hero-qr-container { display: none; }
 
         body.slideshow-mode .hero-qr-container {
-            display: block ;
-            margin-top: 35px !important;
-            text-align: left !important;
-            padding-left: 0;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            body.slideshow-mode .hero-qr-container {
+                margin-top: -80px;
+                margin-right: 20px;
+                margin-bottom: 0;
+            }
         }
 
         .hero-qr-box {
@@ -146,6 +155,19 @@
             display: flex; flex-direction: column;
             align-items: center; text-align: center;
             padding: 0 20px; position: relative;
+        }
+
+        body.slideshow-mode .profile-header {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            body.slideshow-mode .profile-header {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: flex-start;
+            }
         }
 
         .avatar-container {
