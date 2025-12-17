@@ -5,7 +5,9 @@
     <title>Trình Chiếu - Giao diện Profile</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" type="image/png" href="CPH LOGO 1.png">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -108,35 +110,6 @@
             opacity: 1;
         }
 
-        /* 2. CSS CHO QR CODE OVERLAY */
-        .qr-overlay {
-            position: fixed;
-            bottom: 20px; /* Cách đáy 20px */
-            right: 20px;  /* Cách phải 20px (hoặc left nếu muốn) */
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            z-index: 1002; /* Cao hơn các thành phần khác */
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            opacity: 0.8; /* Mờ nhẹ để không che quá nhiều */
-            transition: opacity 0.3s;
-        }
-
-        .qr-overlay:hover {
-            opacity: 1;
-        }
-
-        .qr-text {
-            color: #000;
-            font-size: 10px;
-            margin-top: 5px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
         /* Loading screen */
         .loading-screen {
             position: fixed;
@@ -146,7 +119,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 3000;
             color: white;
         }
         
@@ -190,11 +163,6 @@
     <div class="slide-counter" id="slideCounter">
         <span id="currentSlide">1</span> / <span id="totalSlides">1</span>
     </div>
-
-    <div class="qr-overlay" id="qrOverlay">
-        <div id="qrCodeCanvas"></div>
-        <div class="qr-text">Sổ tang điện tử</div>
-    </div>
     
     <div class="controls-overlay">
         <button class="control-btn" onclick="prevSlide()">
@@ -223,18 +191,16 @@
         let slideTimeout = null;
         let progress = 0;
         
-        // Get base URL for profile pages
+        // Get base URL
         let baseUrl = window.location.href.split('?')[0];
         baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'));
         
-        // Initialize slideshow
         function initSlideshow() {
             if (jobIds.length === 0) {
                 document.getElementById('loadingScreen').innerHTML = `
                     <div style="text-align: center; color: #ef4444;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
                         <div style="font-size: 20px;">Không có hồ sơ nào được chọn</div>
-                        <button onclick="window.close()" style="margin-top: 20px; padding: 10px 30px; background: #fbbf24; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">Đóng</button>
+                        <button onclick="window.close()" style="margin-top: 20px; padding: 10px 30px;">Đóng</button>
                     </div>
                 `;
                 return;
@@ -243,67 +209,96 @@
             const container = document.getElementById('slideshowContainer');
             document.getElementById('totalSlides').textContent = jobIds.length;
             
-            // Create iframes for each profile
             jobIds.forEach((jobId, index) => {
                 const iframe = document.createElement('iframe');
                 iframe.className = 'slide-frame';
                 iframe.id = `slide-${index}`;
-                // Truyền tham số slideshow=1 vào url
                 iframe.src = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}&slideshow=1`;
                 
+                // Khi iframe load xong thì mới chọc vào sửa QR được
+                iframe.onload = () => {
+                    injectQRToIframe(index); // Gọi hàm bơm QR
+                    if (index === 0) {
+                         document.getElementById('loadingScreen').classList.add('hidden');
+                         startProgress();
+                    }
+                };
+
                 if (index === 0) {
                     iframe.classList.add('active');
                 }
                 
                 container.appendChild(iframe);
             });
-
-            // 4. KHỞI TẠO QR CODE CHO SLIDE ĐẦU TIÊN
-            updateQRCode(0);
             
-            // Hide loading after first iframe loads
-            const firstFrame = document.getElementById('slide-0');
-            firstFrame.onload = () => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                startProgress();
-            };
-            
-            // Fallback: hide loading after 3 seconds
+            // Fallback
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
                 if (!progressInterval) startProgress();
             }, 3000);
         }
 
-        // 5. HÀM CẬP NHẬT QR CODE
-        function updateQRCode(index) {
-            const qrContainer = document.getElementById("qrCodeCanvas");
-            qrContainer.innerHTML = ""; // Xóa QR cũ
-            
-            if (jobIds[index]) {
-                const jobId = jobIds[index];
-                // Link trỏ về trang profile của user đó
-                const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}`;
+        // --- HÀM MỚI QUAN TRỌNG: CHỌC VÀO IFRAME ĐỂ THAY QR ---
+        function injectQRToIframe(index) {
+            const iframe = document.getElementById(`slide-${index}`);
+            if (!iframe) return;
+
+            try {
+                // Lấy document bên trong iframe
+                const innerDoc = iframe.contentWindow.document;
                 
-                new QRCode(qrContainer, {
-                    text: targetUrl,
-                    width: 120,  // Kích thước QR
-                    height: 120,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
-                });
+                // Tìm thẻ có ID là "hero-qr-container" BÊN TRONG trang profile
+                // (Bạn phải chắc chắn bên file profile.html có thẻ <div id="hero-qr-container"></div> hoặc class tương ứng)
+                const targetElement = innerDoc.getElementById("hero-qr-container") || innerDoc.querySelector(".hero-qr-container");
+
+                if (targetElement) {
+                    // 1. XÓA SẠCH CÁI CŨ (Canvas JS cũ)
+                    targetElement.innerHTML = ""; 
+                    targetElement.style.display = "flex";
+                    targetElement.style.justifyContent = "center";
+                    targetElement.style.alignItems = "center";
+                    targetElement.style.flexDirection = "column";
+
+                    // 2. TẠO QR MỚI BẰNG THƯ VIỆN CỦA TRANG MẸ
+                    if (jobIds[index]) {
+                        const jobId = jobIds[index];
+                        const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}`;
+                        
+                        // Tạo mã QR
+                        new QRCode(targetElement, {
+                            text: targetUrl,
+                            width: 160,  // Kích thước QR bên trong profile
+                            height: 160,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+
+                        // Thêm dòng chữ bên dưới (nếu cần giống mẫu)
+                        const textNode = innerDoc.createElement("div");
+                        textNode.innerText = "Quét để gửi lời chia buồn";
+                        textNode.style.marginTop = "10px";
+                        textNode.style.fontSize = "14px";
+                        textNode.style.color = "#555";
+                        textNode.style.textAlign = "center";
+                        textNode.style.fontFamily = "Arial, sans-serif";
+                        targetElement.appendChild(textNode);
+                    }
+                } else {
+                    console.warn("Không tìm thấy thẻ #hero-qr-container bên trong iframe slide-" + index);
+                }
+            } catch (e) {
+                console.error("Không thể truy cập iframe (có thể do lỗi CORS nếu chạy khác domain): ", e);
             }
         }
         
-        // Start progress bar
         function startProgress() {
             if (progressInterval) clearInterval(progressInterval);
             if (slideTimeout) clearTimeout(slideTimeout);
             
             progress = 0;
             const progressBar = document.getElementById('progressBar');
-            const updateInterval = 100; // Update every 100ms
+            const updateInterval = 100; 
             const totalSteps = (intervalTime * 1000) / updateInterval;
             const stepSize = 100 / totalSteps;
             
@@ -311,29 +306,23 @@
                 if (!isPaused) {
                     progress += stepSize;
                     progressBar.style.width = progress + '%';
-                    
-                    if (progress >= 100) {
-                        nextSlide();
-                    }
+                    if (progress >= 100) nextSlide();
                 }
             }, updateInterval);
         }
         
-        // Navigate to next slide
         function nextSlide() {
             const prevIndex = currentIndex;
             currentIndex = (currentIndex + 1) % jobIds.length;
             transitionSlide(prevIndex, currentIndex);
         }
         
-        // Navigate to previous slide
         function prevSlide() {
             const prevIndex = currentIndex;
             currentIndex = (currentIndex - 1 + jobIds.length) % jobIds.length;
             transitionSlide(prevIndex, currentIndex);
         }
         
-        // Transition between slides
         function transitionSlide(from, to) {
             const fromFrame = document.getElementById(`slide-${from}`);
             const toFrame = document.getElementById(`slide-${to}`);
@@ -343,49 +332,34 @@
             
             document.getElementById('currentSlide').textContent = to + 1;
             
-            // 6. CẬP NHẬT QR KHI CHUYỂN SLIDE
-            updateQRCode(to);
-
-            // Reset and restart progress
+            // Đảm bảo QR đã được inject (phòng trường hợp load chậm)
+            injectQRToIframe(to);
+            
             progress = 0;
             document.getElementById('progressBar').style.width = '0%';
             startProgress();
         }
         
-        // Toggle pause/play
         function togglePause() {
             isPaused = !isPaused;
             const btn = document.getElementById('playPauseBtn');
             btn.innerHTML = isPaused ? '▶ Tiếp tục' : '⏸ Tạm dừng';
         }
         
-        // Exit slideshow
         function exitSlideshow() {
             window.close();
-            // Fallback if window.close() doesn't work
             window.location.href = 'index.html';
         }
         
-        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             switch(e.key) {
-                case 'ArrowLeft':
-                    prevSlide();
-                    break;
-                case 'ArrowRight':
-                    nextSlide();
-                    break;
-                case ' ':
-                    e.preventDefault();
-                    togglePause();
-                    break;
-                case 'Escape':
-                    exitSlideshow();
-                    break;
+                case 'ArrowLeft': prevSlide(); break;
+                case 'ArrowRight': nextSlide(); break;
+                case ' ': e.preventDefault(); togglePause(); break;
+                case 'Escape': exitSlideshow(); break;
             }
         });
         
-        // Initialize on load
         initSlideshow();
     </script>
 </body>
