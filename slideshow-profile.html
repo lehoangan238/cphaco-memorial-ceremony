@@ -5,6 +5,7 @@
     <title>Trình Chiếu - Giao diện Profile</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" type="image/png" href="CPH LOGO 1.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -106,6 +107,35 @@
         body:hover .slide-counter {
             opacity: 1;
         }
+
+        /* 2. CSS CHO QR CODE OVERLAY */
+        .qr-overlay {
+            position: fixed;
+            bottom: 20px; /* Cách đáy 20px */
+            right: 20px;  /* Cách phải 20px (hoặc left nếu muốn) */
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            z-index: 1002; /* Cao hơn các thành phần khác */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.8; /* Mờ nhẹ để không che quá nhiều */
+            transition: opacity 0.3s;
+        }
+
+        .qr-overlay:hover {
+            opacity: 1;
+        }
+
+        .qr-text {
+            color: #000;
+            font-size: 10px;
+            margin-top: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
         
         /* Loading screen */
         .loading-screen {
@@ -145,28 +175,27 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-spinner"></div>
         <div class="loading-text">Đang tải trình chiếu...</div>
     </div>
 
-    <!-- Slideshow Container -->
     <div class="slideshow-container" id="slideshowContainer">
-        <!-- Iframes will be injected here -->
-    </div>
+        </div>
     
-    <!-- Progress Bar -->
     <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
     </div>
     
-    <!-- Slide Counter -->
     <div class="slide-counter" id="slideCounter">
         <span id="currentSlide">1</span> / <span id="totalSlides">1</span>
     </div>
+
+    <div class="qr-overlay" id="qrOverlay">
+        <div id="qrCodeCanvas"></div>
+        <div class="qr-text">Sổ tang điện tử</div>
+    </div>
     
-    <!-- Controls -->
     <div class="controls-overlay">
         <button class="control-btn" onclick="prevSlide()">
             ◀ Trước
@@ -219,6 +248,7 @@
                 const iframe = document.createElement('iframe');
                 iframe.className = 'slide-frame';
                 iframe.id = `slide-${index}`;
+                // Truyền tham số slideshow=1 vào url
                 iframe.src = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}&slideshow=1`;
                 
                 if (index === 0) {
@@ -227,6 +257,9 @@
                 
                 container.appendChild(iframe);
             });
+
+            // 4. KHỞI TẠO QR CODE CHO SLIDE ĐẦU TIÊN
+            updateQRCode(0);
             
             // Hide loading after first iframe loads
             const firstFrame = document.getElementById('slide-0');
@@ -240,6 +273,27 @@
                 document.getElementById('loadingScreen').classList.add('hidden');
                 if (!progressInterval) startProgress();
             }, 3000);
+        }
+
+        // 5. HÀM CẬP NHẬT QR CODE
+        function updateQRCode(index) {
+            const qrContainer = document.getElementById("qrCodeCanvas");
+            qrContainer.innerHTML = ""; // Xóa QR cũ
+            
+            if (jobIds[index]) {
+                const jobId = jobIds[index];
+                // Link trỏ về trang profile của user đó
+                const targetUrl = `${baseUrl}/profile.html?job=${encodeURIComponent(jobId)}`;
+                
+                new QRCode(qrContainer, {
+                    text: targetUrl,
+                    width: 120,  // Kích thước QR
+                    height: 120,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            }
         }
         
         // Start progress bar
@@ -289,6 +343,9 @@
             
             document.getElementById('currentSlide').textContent = to + 1;
             
+            // 6. CẬP NHẬT QR KHI CHUYỂN SLIDE
+            updateQRCode(to);
+
             // Reset and restart progress
             progress = 0;
             document.getElementById('progressBar').style.width = '0%';
