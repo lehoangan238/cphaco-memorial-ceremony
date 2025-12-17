@@ -80,18 +80,16 @@
             font-size: 18px; font-weight: 600; opacity: 0.9;
         }
 
-        /* --- QR CODE STYLING (SLIDESHOW MODE) --- */
+        /* --- QR CODE STYLING (ON SCREEN) --- */
         .hero-qr-container { display: none; }
 
-        /* Chỉnh sửa layout QR Code theo yêu cầu: Dịch trái, Tăng khoảng cách trên */
         body.slideshow-mode .hero-qr-container {
             display: block !important;
-            margin-top: 35px !important; /* Tăng khoảng cách với năm sinh */
-            text-align: left !important; /* Canh trái thẳng hàng với tên */
+            margin-top: 35px !important;
+            text-align: left !important;
             padding-left: 0;
         }
 
-        /* Box chứa QR Code: Trong suốt, bỏ shadow, bỏ viền */
         .hero-qr-box {
             background: transparent !important;
             padding: 0 !important;
@@ -99,7 +97,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: none !important; /* Bỏ bóng đổ */
+            box-shadow: none !important;
             width: 120px;
             height: 120px;
             flex-shrink: 0;
@@ -107,7 +105,7 @@
             overflow: hidden;
         }
 
-        /* Fix lỗi ghosting (2 mã QR): Ẩn canvas, chỉ hiện img */
+        /* QR trên màn hình: Ẩn canvas, hiện ảnh (để tránh bóng ma) */
         .hero-qr-box canvas { display: none !important; }
         .hero-qr-box img {
             width: 100% !important;
@@ -115,15 +113,14 @@
             display: block !important;
         }
 
-        /* Dòng chữ nhỏ dưới QR */
         .hero-qr-text {
             color: #333333;
             font-size: 11px;
             font-weight: 500;
             margin-top: 8px;
             opacity: 0.9;
-            width: 120px;       /* Bằng chiều rộng QR */
-            text-align: center; /* Canh giữa chữ so với QR */
+            width: 120px;
+            text-align: center;
         }
 
         /* Slideshow mode - hide form and buttons */
@@ -309,14 +306,14 @@
         #export-container {
             position: fixed; 
             top: 0; 
-            left: -9999px; /* Mặc định ẩn ra ngoài màn hình */
+            left: -9999px; 
             width: 1080px; height: 1920px;
             background: linear-gradient(180deg, #1f2937 0%, #000000 100%);
             color: white; font-family: 'Roboto', sans-serif;
             display: flex; flex-direction: column;
             padding: 60px 40px; box-sizing: border-box; 
             z-index: -100;
-            /* ĐÃ XOÁ visibility: hidden để tránh lỗi không vẽ QR */
+            /* Đã xóa visibility: hidden để tránh lỗi render */
         }
         #export-container .top-logo { text-align: center; margin-bottom: 40px; }
         #export-container .top-logo img { height: 120px; }
@@ -352,9 +349,9 @@
             background: white; padding: 15px; border-radius: 10px;
         }
         
-        /* QUAN TRỌNG: FIX LỖI MẤT QR KHI XUẤT ẢNH */
-        #export-qrcode canvas { display: none !important; }
-        #export-qrcode img { display: block !important; width: 100%; }
+        /* QUAN TRỌNG: Với html2canvas, ưu tiên hiện Canvas cho nét */
+        #export-qrcode canvas { display: block !important; }
+        #export-qrcode img { display: none !important; }
 
         #export-container .qr-text { text-align: left; }
         #export-container .qr-text h3 {
@@ -595,22 +592,6 @@
                 exportAvatar.setAttribute('crossOrigin', 'anonymous');
             }
 
-            // Tạo QR Code cho khung Export
-            const exportQrDiv = document.getElementById('export-qrcode');
-            if (exportQrDiv) {
-                exportQrDiv.innerHTML = ""; 
-                const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
-
-                new QRCode(exportQrDiv, {
-                    text: fullUrl,
-                    width: 160,
-                    height: 160,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-
             // --- 3. ĐIỀN CÁC THÔNG TIN KHÁC (TIỂU SỬ, COMMENT) ---
             const bioEl = document.getElementById('bio-content');
             bioEl.innerHTML = data.biography || "<em>Chưa cập nhật tiểu sử.</em>";
@@ -641,17 +622,29 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
         btn.disabled = true;
 
-        // --- KỸ THUẬT: ÉP TRÌNH DUYỆT RENDER QR ---
-        // Lưu lại vị trí cũ
+        // --- KỸ THUẬT: ĐƯA VỀ 0,0 NHƯNG GIẤU DƯỚI LỚP NỀN ---
         const originalLeft = element.style.left;
         const originalTop = element.style.top;
         const originalZIndex = element.style.zIndex;
         
-        // Đưa về 0,0 nhưng nằm dưới lớp dưới cùng
         element.style.left = "0px";
         element.style.top = "0px";
         element.style.zIndex = "-9999"; 
         
+        // --- KỸ THUẬT 2: TẠO MỚI QR CODE NGAY LÚC NÀY ---
+        // (Để đảm bảo nó được vẽ khi element đang hiện hữu)
+        const exportQrDiv = document.getElementById('export-qrcode');
+        exportQrDiv.innerHTML = ""; // Xóa cũ
+        const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
+        new QRCode(exportQrDiv, {
+            text: fullUrl,
+            width: 160,
+            height: 160,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
         // Chờ 500ms cho QR code kịp vẽ ra rồi mới chụp
         setTimeout(() => {
             html2canvas(element, {
