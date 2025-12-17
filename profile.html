@@ -83,13 +83,15 @@
         /* --- QR CODE STYLING (ON SCREEN) --- */
         .hero-qr-container { display: none; }
 
+        /* Chỉnh sửa layout QR Code theo yêu cầu: Dịch trái, Tăng khoảng cách trên */
         body.slideshow-mode .hero-qr-container {
             display: block !important;
-            margin-top: 35px !important;
-            text-align: left !important;
+            margin-top: 35px !important; /* Tăng khoảng cách với năm sinh */
+            text-align: left !important; /* Canh trái thẳng hàng với tên */
             padding-left: 0;
         }
 
+        /* Box chứa QR Code: Trong suốt, bỏ shadow, bỏ viền */
         .hero-qr-box {
             background: transparent !important;
             padding: 0 !important;
@@ -97,7 +99,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: none !important;
+            box-shadow: none !important; /* Bỏ bóng đổ */
             width: 120px;
             height: 120px;
             flex-shrink: 0;
@@ -105,22 +107,26 @@
             overflow: hidden;
         }
 
-        /* QR trên màn hình: Ẩn canvas, hiện ảnh (để tránh bóng ma) */
-        .hero-qr-box canvas { display: none !important; }
-        .hero-qr-box img {
+        /* --- QUAN TRỌNG: FIX LỖI HIỂN THỊ TRÊN STANDEE --- */
+        /* Luôn hiển thị CANVAS (vẽ trực tiếp), ẩn IMG (ảnh tạo ra sau) */
+        .hero-qr-box canvas { 
+            display: block !important; 
             width: 100% !important;
             height: auto !important;
-            display: block !important;
+        }
+        .hero-qr-box img { 
+            display: none !important; /* Ẩn ảnh đi để tránh lỗi load chậm hoặc không load */
         }
 
+        /* Dòng chữ nhỏ dưới QR */
         .hero-qr-text {
             color: #333333;
             font-size: 11px;
             font-weight: 500;
             margin-top: 8px;
             opacity: 0.9;
-            width: 120px;
-            text-align: center;
+            width: 120px;       /* Bằng chiều rộng QR */
+            text-align: center; /* Canh giữa chữ so với QR */
         }
 
         /* Slideshow mode - hide form and buttons */
@@ -302,18 +308,18 @@
             }
         }
 
-        /* --- EXPORT CONTAINER --- */
+        /* --- EXPORT CONTAINER (HIDDEN INITIALLY) --- */
         #export-container {
             position: fixed; 
             top: 0; 
-            left: -9999px; 
+            left: -9999px; /* Mặc định ẩn ra ngoài màn hình */
             width: 1080px; height: 1920px;
             background: linear-gradient(180deg, #1f2937 0%, #000000 100%);
             color: white; font-family: 'Roboto', sans-serif;
             display: flex; flex-direction: column;
             padding: 60px 40px; box-sizing: border-box; 
             z-index: -100;
-            /* Đã xóa visibility: hidden để tránh lỗi render */
+            /* Đã xóa visibility: hidden để đảm bảo vẽ được */
         }
         #export-container .top-logo { text-align: center; margin-bottom: 40px; }
         #export-container .top-logo img { height: 120px; }
@@ -349,7 +355,7 @@
             background: white; padding: 15px; border-radius: 10px;
         }
         
-        /* QUAN TRỌNG: Với html2canvas, ưu tiên hiện Canvas cho nét */
+        /* FIX CHO EXPORT: Ưu tiên Canvas */
         #export-qrcode canvas { display: block !important; }
         #export-qrcode img { display: none !important; }
 
