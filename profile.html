@@ -305,14 +305,18 @@
             }
         }
 
-        /* --- EXPORT CONTAINER (HIDDEN) --- */
+        /* --- EXPORT CONTAINER (HIDDEN INITIALLY) --- */
         #export-container {
-            position: fixed; top: 0; left: -9999px;
+            position: fixed; 
+            top: 0; 
+            left: -9999px; /* Mặc định ẩn ra ngoài màn hình */
             width: 1080px; height: 1920px;
             background: linear-gradient(180deg, #1f2937 0%, #000000 100%);
             color: white; font-family: 'Roboto', sans-serif;
             display: flex; flex-direction: column;
-            padding: 60px 40px; box-sizing: border-box; z-index: -100;
+            padding: 60px 40px; box-sizing: border-box; 
+            z-index: -100;
+            visibility: hidden; /* Ẩn mặc định */
         }
         #export-container .top-logo { text-align: center; margin-bottom: 40px; }
         #export-container .top-logo img { height: 120px; }
@@ -622,35 +626,67 @@
         }
     }
 
-    // HÀM TẢI ẢNH (Dùng html2canvas)
+    // --- HÀM TẢI ẢNH FIX LỖI MẤT QR ---
     function downloadImage() {
         const element = document.getElementById('export-container');
         const btn = document.querySelector('button[onclick="downloadImage()"]');
         
+        // Hiệu ứng loading
         const oldText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
         btn.disabled = true;
 
-        html2canvas(element, {
-            useCORS: true,       
-            scale: 2,           
-            backgroundColor: null, 
-            windowWidth: 1080,   
-            windowHeight: 1920
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'so-tang-' + (document.getElementById('export-name').textContent || 'luu-niem') + '.png';
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+        // --- KỸ THUẬT: ÉP TRÌNH DUYỆT RENDER QR ---
+        // Lưu lại vị trí cũ
+        const originalLeft = element.style.left;
+        const originalTop = element.style.top;
+        const originalVisibility = element.style.visibility;
+        
+        // Đưa về 0,0 nhưng nằm dưới lớp dưới cùng
+        element.style.left = "0px";
+        element.style.top = "0px";
+        element.style.zIndex = "-9999"; 
+        element.style.visibility = "visible"; // Bắt buộc hiện
 
-            btn.innerHTML = oldText;
-            btn.disabled = false;
-        }).catch(err => {
-            console.error("Lỗi xuất ảnh:", err);
-            alert("Không thể tạo ảnh. Vui lòng thử lại.");
-            btn.innerHTML = oldText;
-            btn.disabled = false;
-        });
+        // Chờ 500ms cho QR code kịp vẽ ra rồi mới chụp
+        setTimeout(() => {
+            html2canvas(element, {
+                useCORS: true,       
+                scale: 2,           
+                backgroundColor: null, 
+                width: 1080,        
+                height: 1920,
+                windowWidth: 1080,   
+                windowHeight: 1920
+            }).then(canvas => {
+                // Trả lại vị trí cũ ngay lập tức
+                element.style.left = originalLeft || "-9999px";
+                element.style.top = originalTop || "0";
+                element.style.visibility = originalVisibility || "hidden";
+                element.style.zIndex = "-100";
+
+                // Tải ảnh về
+                const link = document.createElement('a');
+                link.download = 'standee-' + (document.getElementById('export-name').textContent || 'tuong-niem') + '.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+
+                // Reset nút bấm
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("Lỗi xuất ảnh:", err);
+                alert("Không thể tạo ảnh. Vui lòng thử lại.");
+                
+                // Trả lại vị trí cũ nếu lỗi
+                element.style.left = originalLeft || "-9999px";
+                element.style.top = originalTop || "0";
+                element.style.visibility = originalVisibility || "hidden";
+                
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            });
+        }, 500); // Delay 0.5s
     }
 
     function renderTributes(list) {
