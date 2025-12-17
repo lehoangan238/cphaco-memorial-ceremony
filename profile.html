@@ -631,12 +631,13 @@
             <hr style="border:0; border-top:1px solid #eee; margin: 30px 0;">
 
             <div class="tribute-form-container">
-                <div class="form-header"><i class="fas fa-comment-alt"></i> Gửi lời nhắn</div>
+                <div class="form-header"><i class="fas fa-comment-alt"></i> Gửi lời chia buồn</div>
                 <form id="tributeForm">
-                    <input type="text" id="inputName" class="form-input" placeholder="Tên của bạn..." required>
-                    <textarea id="inputMsg" class="form-textarea" rows="3" placeholder="Lời chia buồn..."
+                    <input type="text" id="inputName" class="form-input" placeholder="Họ và tên..." required>
+                    <input type="tel" id="inputPhone" class="form-input" placeholder="Số điện thoại..." required>
+                    <textarea id="inputMsg" class="form-textarea" rows="3" placeholder="Nội dung chia buồn..."
                         required></textarea>
-                    <button type="submit" class="btn-submit">Gửi tin</button>
+                    <button type="submit" class="btn-submit">Gửi lời chia buồn</button>
                 </form>
             </div>
 
@@ -797,14 +798,25 @@
         }
 
         // --- HÀM GỬI TIN ---
+        // Regex cho số điện thoại Việt Nam (10-11 số, bắt đầu bằng 0 hoặc +84)
+        const phoneRegex = /^(0|\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])[0-9]{7}$/;
+
         document.getElementById('tributeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (!JOB_ID) return alert("Lỗi: Không xác định được hồ sơ.");
 
             const btn = e.target.querySelector('button');
-            const name = document.getElementById('inputName').value;
-            const msg = document.getElementById('inputMsg').value;
+            const name = document.getElementById('inputName').value.trim();
+            const phone = document.getElementById('inputPhone').value.trim();
+            const msg = document.getElementById('inputMsg').value.trim();
+
+            // Validate số điện thoại
+            if (!phoneRegex.test(phone)) {
+                alert("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (VD: 0912345678 hoặc +84912345678)");
+                document.getElementById('inputPhone').focus();
+                return;
+            }
 
             btn.disabled = true;
             btn.textContent = "Đang gửi...";
@@ -816,6 +828,7 @@
                     body: JSON.stringify({
                         job_id: JOB_ID,
                         sender_name: name,
+                        sender_phone: phone,
                         message: msg
                     })
                 });
@@ -824,6 +837,7 @@
                 if (json.ok) {
                     alert("Cảm ơn bạn đã gửi lời chia buồn.");
                     document.getElementById('inputName').value = "";
+                    document.getElementById('inputPhone').value = "";
                     document.getElementById('inputMsg').value = "";
                     loadData(); // Tải lại để hiện comment mới
                 } else {
