@@ -105,13 +105,13 @@
             overflow: hidden;
         }
 
-        /* QR hiển thị trên màn hình Web */
+        /* QR trên màn hình Web */
+        .hero-qr-box canvas { display: none !important; }
         .hero-qr-box img {
             width: 100% !important;
             height: auto !important;
             display: block !important;
         }
-        .hero-qr-box canvas { display: none !important; }
 
         .hero-qr-text {
             color: #333333;
@@ -348,11 +348,14 @@
             background: white; padding: 15px; border-radius: 10px;
         }
         
-        /* CSS cho phần Xuất Ảnh: Cho phép hiển thị ảnh trong này */
+        /* FIX: Cho phép hiển thị cả ảnh và canvas trong khung export */
         #export-qrcode img { 
             display: block !important; 
             width: 100% !important; 
             height: auto !important;
+        }
+        #export-qrcode canvas {
+            display: none; /* Mặc định ẩn canvas, ta sẽ chuyển nó thành ảnh */
         }
 
         #export-container .qr-text { text-align: left; }
@@ -537,7 +540,7 @@
         if (IS_SLIDESHOW && JOB_ID) {
             const qrBox = document.getElementById('qr-code-box');
             if (!qrBox) return;
-            qrBox.innerHTML = ''; 
+            qrBox.innerHTML = ''; // Xóa nội dung cũ để tránh bị trùng lặp
 
             const baseUrl = window.location.origin + window.location.pathname;
             const pageUrl = baseUrl + '?job=' + JOB_ID;
@@ -576,7 +579,7 @@
             if (data.avatar_url) {
                 avatar.src = data.avatar_url;
                 avatar.style.display = 'block';
-                avatar.setAttribute('crossOrigin', 'anonymous');
+                avatar.setAttribute('crossOrigin', 'anonymous'); // Quan trọng cho việc tải ảnh
             }
 
             document.getElementById('hero-name').textContent = data.full_name;
@@ -614,7 +617,7 @@
         }
     }
 
-    // --- HÀM TẢI ẢNH (ĐÃ FIX LỖI MẤT QR) ---
+    // --- HÀM TẢI ẢNH FIX LỖI MẤT QR ---
     function downloadImage() {
         const element = document.getElementById('export-container');
         const btn = document.querySelector('button[onclick="downloadImage()"]');
@@ -635,11 +638,9 @@
         element.style.zIndex = "-9999"; 
         
         // B2: TẠO QR CODE MỚI & CHUYỂN THÀNH ẢNH TĨNH NGAY LẬP TỨC
-        // Reset QR div
         exportQrDiv.innerHTML = ""; 
         const fullUrl = window.location.href.split('?')[0] + '?job=' + JOB_ID;
         
-        // Tạo QR
         new QRCode(exportQrDiv, {
             text: fullUrl,
             width: 160,
@@ -649,13 +650,13 @@
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // B3: Đợi một chút để QR được vẽ lên Canvas, sau đó ép thành ảnh IMG
+        // B3: Đợi một chút để QR được vẽ, sau đó ép thành ảnh IMG
         setTimeout(() => {
             const qrCanvas = exportQrDiv.querySelector('canvas');
             if (qrCanvas) {
                 // Thủ thuật: Chuyển canvas thành DataURL (ảnh base64)
                 const imgData = qrCanvas.toDataURL("image/png");
-                // Thay thế toàn bộ nội dung trong div bằng thẻ IMG tĩnh
+                // Thay thế bằng thẻ IMG tĩnh
                 exportQrDiv.innerHTML = `<img src="${imgData}" style="width:100%; display:block;">`;
             }
 
@@ -693,7 +694,7 @@
                 btn.innerHTML = oldText;
                 btn.disabled = false;
             });
-        }, 300); // Đợi 300ms là đủ
+        }, 500); // Đợi 500ms
     }
 
     function renderTributes(list) {
